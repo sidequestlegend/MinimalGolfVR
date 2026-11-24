@@ -481,9 +481,27 @@
       "kind": "click",
       "method": "BallPickClick",
       "object": "ballPick7"
+    },
+    {
+      "behaviour": "b3",
+      "kind": "graph",
+      "method": "OnGolfCapture",
+      "name": "golfCapture"
+    },
+    {
+      "behaviour": "b3",
+      "kind": "graph",
+      "method": "OnGolfRest",
+      "name": "golfRest"
+    },
+    {
+      "behaviour": "b3",
+      "kind": "graph",
+      "method": "OnGolfImpact",
+      "name": "golfImpact"
     }
   ],
-  "hash": "8695da876f8b99001855d4b03dd802c00d237fc3",
+  "hash": "89c115ae664cb468cacde5366397235cf84ea1fd",
   "objects": {
     "aimLine": {
       "click": false,

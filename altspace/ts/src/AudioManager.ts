@@ -1,7 +1,9 @@
 // AudioManager.cs (240 lines): sound effects with no clip twice in a row. Music and its code are left out (the three
-// tracks have no licence, PORT.md 6.4); so are the seven effects for now (same reason): the clip lists come from
-// bindings and are empty until CC0 replacements are in the kit, so the plays below do nothing yet. The choice rule is
-// kept and tested. Listener juggling, DontDestroyOnLoad and the singleton are dropped: one manager per client and table.
+// tracks have no licence, PORT.md 6.4). Upstream's seven effects have none either: the clip lists come from bindings
+// and hold Kenney's CC0 replacements (three putts, three cup drops; THIRD-PARTY-NOTICES.md). Upstream's collision clip
+// (Classic_Woosh.wav, never played) has no replacement, so `collisionClip` is null and PlayCollisionSfx does nothing.
+// The choice rule is kept and tested. Listener juggling, DontDestroyOnLoad and the singleton are dropped: one manager
+// per client and table.
 //
 // Changed (PORT.md 10.1 #9): effects play through the ball's own audio source, 3D at the table, so that every player
 // hears a shot at the ball that made it; upstream plays them on one near-2D source at the scene origin.

@@ -126,7 +126,7 @@ test("the stroke limit: a player picks up after the last allowed stroke stops; t
   assert.deepEqual(g.problems(), []);
 });
 
-test("hole timeout: 120 s after the first player holes out, the rest are recorded as out of time", async () => {
+test("hole timeout: 120 s after the first player holes out, the rest are recorded as out of time (not finished: par + 2 here)", async () => {
   const { g, clients } = await table(["Ann", "Bob"]);
   const [ann, bob] = clients as [FakeClient, FakeClient];
   await g.ready(bob);
@@ -138,7 +138,7 @@ test("hole timeout: 120 s after the first player holes out, the rest are recorde
   await g.until(() => g.me(bob).finished === OUT_OF_TIME, "Bob out of time", 30_000);
   assert.equal(g.me(bob).feedback, "OUT OF TIME");
   await g.until(() => g.golf(ann).currentLevelIndex === 1, "next hole");
-  assert.deepEqual(g.golf(ann).RowOf(bob.uid)!.strokes[0], 1);
+  assert.deepEqual(g.golf(ann).RowOf(bob.uid)!.strokes[0], LEVELS[0]!.par + 2, "one stroke so far: scored par + 2, never the 1 so far");
   assert.equal(g.golf(ann).RowOf(bob.uid)!.marks[0], "dnf");
 });
 
@@ -457,9 +457,10 @@ test("B2: in a headset each hand carries its green sphere (AttachToHand); on des
   const bob = g.join("Bob");
   await g.world.settle();
   await g.run(500);
-  const attached = [...ann.attached.entries()].map(([path, a]) => `${path.replace(/^.*?\(Clone\)\//, "")}:${a.point}:${a.uid === ann.uid}`).sort();
+  // The runtime's own throwaway head probe (localPosition(), portkit bs.ts readHead) is not the game's.
+  const attached = [...ann.attached.entries()].filter(([path]) => path !== "pk1-head-probe").map(([path, a]) => `${path.replace(/^.*?\(Clone\)\//, "")}:${a.point}:${a.uid === ann.uid}`).sort();
   const paths = ["handSphereL", "handSphereR"].map((k) => g.world.bindings.objects[k]!.path);
   assert.deepEqual(attached, [`${paths[0]}:1:true`, `${paths[1]}:2:true`], "left sphere on the left hand, right on the right");
-  assert.equal(bob.attached.size, 0, "a desktop player attaches nothing");
+  assert.equal([...bob.attached.keys()].filter((path) => path !== "pk1-head-probe").length, 0, "a desktop player attaches nothing");
   assert.deepEqual(g.problems(), []);
 });

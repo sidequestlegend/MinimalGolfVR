@@ -3,12 +3,24 @@
 //
 // One row per player who joined this round. A row keeps its slot (and so its ball) while the player is present; a
 // player who leaves keeps the slot for SEAT_GRACE seconds (a reload gets the same ball and row back), then the slot is
-// freed and the row stays on the card, marked as left, until the course is restarted.
+// freed and the row stays on the card, marked as left, until the course is restarted (or, past MAX_ROWS rows, until a
+// newcomer needs the room). A hole that ends without a result from a player who joined at or before it (out of time,
+// or not there) is scored with missedScore, never better than finishing would have been.
 
 export const HOLES = 8;
 export const MAX_SLOTS = 8;
 /** Seconds a departed player's slot is kept for them (user state lasts as long after a leave). */
 export const SEAT_GRACE = 30;
+/**
+ * Rows the card keeps at most (seated players and departed ones). The card is one synced leaf (at most 16 KiB): a
+ * room where people keep coming and going must not grow it without end. Past this, a newcomer's row replaces the
+ * departed row whose slot was freed longest ago.
+ */
+export const MAX_ROWS = 24;
+/** Characters of a display name the card keeps (the board shows 12). */
+export const NAME_MAX = 24;
+/** A hole not finished is scored at least par + this (with no stroke limit), and never below strokes so far + 1. */
+export const MISSED_OVER_PAR = 2;
 
 /** How a hole ended for a player: holed out, picked up at the stroke limit, or out of time (hole timeout). */
 export type Mark = "" | "max" | "dnf";
@@ -26,10 +38,40 @@ export interface CardRow {
   left: boolean;
   /** Server seconds when the player was seen to leave. */
   leftAt: number;
+  /**
+   * The most strokes the referee has seen this player report on the current hole (their GolfPlayer state). A player
+   * who leaves, reloads or lowers their own count keeps this as their floor; reset when a level loads.
+   */
+  seen: number;
 }
 
 export function newRow(uid: string, name: string, slot: number, joined: number): CardRow {
-  return { uid, name, slot, joined, strokes: new Array<number | null>(HOLES).fill(null), marks: new Array<Mark>(HOLES).fill(""), left: false, leftAt: 0 };
+  return { uid, name: name.slice(0, NAME_MAX), slot, joined, strokes: new Array<number | null>(HOLES).fill(null), marks: new Array<Mark>(HOLES).fill(""), left: false, leftAt: 0, seen: 0 };
+}
+
+/**
+ * The score of a player who did not hole out (the hole timeout ended it, or they were not there when it ended):
+ * never better than holing out with the next stroke. With a stroke limit it is the limit (the same as picking up);
+ * without one, at least par + MISSED_OVER_PAR, so walking away from a bad hole, or never starting it, does not pay.
+ */
+export function missedScore(strokesSoFar: number, par: number, strokeLimit: number): number {
+  const strokes = Math.max(0, Math.trunc(strokesSoFar));
+  if (strokeLimit > 0) return Math.max(strokeLimit, strokes);
+  return Math.max(strokes + 1, par + MISSED_OVER_PAR);
+}
+
+/** Room for one more row: drops the departed rows whose slot was freed longest ago until fewer than MAX_ROWS remain. */
+export function makeRoom(rows: CardRow[]): CardRow[] {
+  const out = rows.slice();
+  while (out.length >= MAX_ROWS) {
+    let drop = -1;
+    out.forEach((r, i) => {
+      if (r.slot < 0 && r.left && (drop < 0 || r.leftAt < out[drop]!.leftAt)) drop = i;
+    });
+    if (drop < 0) break;
+    out.splice(drop, 1);
+  }
+  return out;
 }
 
 export function rowOf(rows: readonly CardRow[], uid: string): CardRow | null {

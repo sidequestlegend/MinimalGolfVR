@@ -277,13 +277,13 @@ Upstream is one player, one ball, one table. The proposal keeps every rule of se
 
 **Leaving mid-round.** On `user-left` the referee keeps the slot for that uid for 30 s (the same grace user state has), then frees it, hides the ball and marks the row `left`. The row stays on the card until the next course restart. Hole completion is re-evaluated without them, so a leaver cannot block the group. If the referee leaves, the runtime elects a new one, which continues from `v.game`.
 
-**Not blocking the group.** Upstream has no stroke or time limit. Proposed, both off-able: `hole-timeout` (default 120 s, counted from the first player holing out; players still out are recorded as their strokes so far, marked "DNF") and `stroke-limit` (default 0, off). In `turns` mode a `turn-seconds` limit (default 45) passes the turn without a stroke.
+**Not blocking the group.** Upstream has no stroke or time limit. Proposed, both off-able: `hole-timeout` (default 120 s, counted from the first player holing out; players still out are recorded as their strokes so far, marked "DNF"; **as built** they are scored as not finished, at least strokes so far + 1 and par + 2, 11.2) and `stroke-limit` (default 0, off). In `turns` mode a `turn-seconds` limit (default 45) passes the turn without a stroke.
 
 **Restarts.** "Restart my hole" keeps upstream rule D4 for that player only: ball back to the reset point, level strokes to 0, total unchanged, "LEVEL RESTARTED" shown. It does not replay the reveal for everyone (changed, section 10). "Play again" after the course is complete restarts the course for everyone (D5), clears the card and resets every total.
 
 **Everyone gone.** Space state lasts 24 h. If a player arrives and no seated uid from `v.game.order` is present, the instance prefix `pk1.mini-golf.<inst>.` is deleted and a new round starts.
 
-**Trust.** As in every port here, all state is public and writable by anyone in the room; a modified client can write any score.
+**Trust.** As in every port here, all state is public and writable by anyone in the room; a modified client can write any score. As built: 11.2, "Trust".
 
 ---
 
@@ -802,10 +802,10 @@ windmill graph and the relay ops below are built there.
 
 | Command (in `ts/`) | What it does |
 |---|---|
-| `npm test` | type check, the portkit lint, 38 Node tests: 12 golden, 9 rules, 17 fake-room scenarios |
+| `npm test` | type check, the portkit lint, 49 Node tests: 12 golden, 9 rules, 17 fake-room scenarios, 11 for the review findings (`test/fixes.test.ts`) |
 | `npm run golden` | compiles upstream's own C# with dotnet 8 against portkit's `golden/UnityStubs.cs` and `MetaXRStubs.cs` and writes `vectors/upstream.json` |
 | `npm run levels` | `src/levels.json` from this file's level table (5.3) and slots (5.1); a test fails if they drift apart |
-| `npm run build` | `pk-mini-golf.js` (322 KB) with the MIT header of `script-header.txt` |
+| `npm run build` | `pk-mini-golf.js` (392 KB) with the MIT notice of `script-header.txt` (in full) and portkit's MIT banner |
 
 ### 11.1 Files (translation map as built)
 
@@ -816,7 +816,7 @@ windmill graph and the relay ops below are built there.
 | `MinimalGolfGame.cs` | `src/MinimalGolfGame.ts` (the course, referee-written) + `src/GolfPlayer.ts` (per player) | the shot model as `GolfAim`, `CupAssist`, `CapturePath`, `SwapLayout`, messages |
 | `VRGolfClub.cs` | `src/VRGolfClub.ts` | `Update` per hand from poses and trigger events; `DesktopAim` (new) |
 | `VRGolfUI.cs` | `src/VRGolfUI.ts` | G1 to G5 plus the scorecard panel and JOIN / LEAVE |
-| `AudioManager.cs` | `src/AudioManager.ts` | no-repeat choice; music code removed; clip lists empty (no licence) |
+| `AudioManager.cs` | `src/AudioManager.ts` | no-repeat choice; music code removed; clip lists hold Kenney's CC0 replacements (12.4); no collision clip |
 | `CameraImpactShake.cs`, `GolfBallImpact.cs` | `src/CameraImpactShake.ts`, `src/GolfBallImpact.ts` | impacts come from the ball graph |
 | `ProximityRevealVolume.cs`, `RevealVolumeManager.cs` | `src/ProximityRevealVolume.ts`, `src/RevealVolumeManager.ts` | grip gating, `PushGlobals` as the `xray` op, `RevealMask` |
 | `WindmillRotor.cs` | `src/WindmillRotor.ts` | the angle; the blades turn in a graph from the synced clock |
@@ -834,8 +834,11 @@ join at the current hole.
 **Shared, written by the referee** (`MinimalGolfGame`, one space-state leaf): `round` (server seconds of the round's
 start, so a device's saved player state from another round is never used), `currentLevelIndex` (-1 before the first),
 `slotOf[8]` (the swap layout of `LoadLevel`, K7 kept), `revealStart` (synced-clock seconds), `courseComplete`,
-`holeDoneAt`, `firstHoledAt`, `card` (one row per player: uid, name, slot, `joined` hole, strokes[8], marks[8], left,
-leftAt). Every deadline is a synced-clock time in that leaf, so a new referee carries on where the old one stopped.
+`holeDoneAt`, `firstHoledAt`, `card` (one row per player: uid, name (24 characters at most), slot, `joined` hole,
+strokes[8], marks[8], left, leftAt, `seen`: the most strokes the referee has seen that player report on the current hole).
+Every deadline is a synced-clock time in that leaf, so a new referee carries on where the old one stopped. The card keeps
+at most 24 rows (`MAX_ROWS`): past that, a newcomer's row replaces the departed row whose seat was freed longest ago, so
+the leaf stays bounded (worst case well under the 16 KiB leaf limit; tested).
 
 **Per player, written by that player** (`GolfPlayer`, per-player and persistent, in their user state): `round`, `hole`,
 `levelStrokes` (upstream's, reset by a restart), `holeStrokes` (all strokes on the hole, what the card records),
@@ -858,17 +861,26 @@ does the cup assist and capture test (`CupAssist` is its reference) and reports 
   the reset point when it ends (A11).
 - A player's hole ends when the ball graph reports a capture (sink 0.62 s, then `finished = 1` and upstream's message),
   at the stroke limit (`stroke-limit`, default 0 = none, as upstream: after the last allowed stroke has been at rest for
-  1 s with no capture, `finished = 2`, "STROKE LIMIT  •  PICKED UP"), or at the hole timeout (`hole-timeout`, default
-  120 s after the first player finishes; the referee records the rest with their strokes so far, marked out of time,
-  "OUT OF TIME"). The referee copies each result to the card once.
-- The hole is over when every seated, present player who joined at or before it has a result. The referee then waits
-  upstream's 2.05 s and loads the next level for everyone (`LoadLevel`'s swap); after level 8 the course is complete
-  for everyone. PLAY AGAIN (any seated player) starts a new round: departed rows are dropped, everyone's strokes and
+  1 s with no capture, `finished = 2`, "STROKE LIMIT  •  PICKED UP"; no putt is taken once the limit is reached, so the
+  wait cannot be used for one more), or at the hole timeout (`hole-timeout`, default 120 s after the first player
+  finishes; the referee scores the rest as not finished, marked out of time, "OUT OF TIME"). A ball already dropping
+  into the cup when the timeout falls (the referee sees `capturing`) gets 2 s more to finish and counts as holed. The
+  referee copies each result to the card once, never below the strokes it has seen (`seen`).
+- **Not finished** (`missedScore`): never better than holing out with the next stroke: the stroke limit when one is set
+  (the same as picking up), else the larger of strokes so far + 1 and par + 2. A player who never putted gets par + 2,
+  not 0.
+- The hole is over when every seated, present player who joined at or before it has a result. At that moment every
+  other row that joined at or before it and has no result (a player who left, pressed LEAVE, or reloaded too slowly)
+  is scored as not finished from the strokes the referee saw, so leaving and coming back never skips a hole. The
+  referee then waits upstream's 2.05 s and loads the next level for everyone (`LoadLevel`'s swap); after level 8 the
+  course is complete for everyone; the course-complete panel shows the card's total for the player. PLAY AGAIN (any seated player) starts a new round: departed rows are dropped, everyone's strokes and
   totals go to 0, the layout keeps swapping as upstream.
 - A player missing from the instance for 3 s is marked as left: they no longer block the hole and their ball is hidden.
   Their slot is kept 30 s (the user-state grace); back within it (a reload) they carry on with their strokes (restored
-  from the device) and the ball at the reset point. After it the slot is freed, the row stays on the card as `(name)`.
-  LEAVE frees the slot at once.
+  from the device) and the ball at the reset point; a reload during the 0.62 s sink finishes the hole on return (the
+  ball was in the cup). After it the slot is freed, the row stays on the card as `(name)`. LEAVE frees the slot at
+  once. The board draws ten lines: header, par, then the seated players in slot order and, below them, departed players,
+  the latest to leave first.
 - Restart my hole (RESTART HOLE button, key R): that player's ball back, `levelStrokes` 0, total kept (K2); no reveal
   replay for anyone; refused while sinking or after finishing (K3 fixed).
 
@@ -878,7 +890,20 @@ none) and a hole timeout as the guard against a blocked table; that is what is b
 says whenever a host sets it, and `hole-timeout` (120 s) keeps a table moving when it is off.
 
 **The scorecard** records `holeStrokes`, so a restarted attempt's strokes stay on the card as they stay in upstream's
-total (K2): the card's total and the player's own total agree.
+total (K2), and the hole-complete message counts them too ("+1 OVER PAR" for three strokes over two attempts on a par 2;
+upstream's `levelStrokes` would say "UNDER PAR!"). The board's own stroke count (G1) still shows the attempt's strokes,
+as upstream. The card's total and the player's own count differ only by holes scored as not finished; the course-complete
+panel shows the card's.
+
+**Trust (as built).** Upstream is one player on one machine, so it has no trust model to compare with; here several
+people share a card. What holds: each player's strokes live in their own user state, which the relay ties to its sender
+(nobody else can write them); the referee keeps the highest count it has seen on the hole (`seen`), so a count lowered
+later, or lost with a leave or reload, does not lower the card; a missed hole always costs. What a modified client can
+still do: not count its strokes at all (only other players watching its ball would notice); claim a capture without the
+ball reaching the cup (the cup test runs in its own ball's graph, and it owns its ball's physics, as any owner does);
+move its own ball anywhere; take the referee's seat under the runtime's rules; and, because synced behaviour fields are
+public space state, overwrite the card or the course state (every client, the referee included, takes the new value).
+Nothing in this game unlocks with a score: the card is for fun, not authority (README "Trust").
 
 ### 11.3 The Unity-side contract (relay ops and graph events)
 
@@ -896,7 +921,7 @@ Payload format as the portkit README. Ops sent by `src/GolfRelay.ts` (value ops 
 | `uiHeight` (value) | pip | height | `RectTransform.sizeDelta.y` (VRGolfUI.cs:194-195) |
 | `fade` (value) | feedbackCanvas | alpha | the toast's opacity (CanvasGroup is not allow-listed) |
 
-Graph to page, `window.__pk1.event("mini-golf:<inst>", name, args)`, registered by `GolfPlayer.Start` (`RegisterGraphEvent`; the C# bindings writer has no graph-event entry, G12) and acted on by the local player's copy:
+Graph to page, `window.__pk1.event("mini-golf:<inst>", name, args)`, bound in `bindings.json` as `{"kind":"graph"}` events to `GolfPlayer` (b3) by the kit builder (`stage.GraphEvent`, G12 closed) and acted on by the local player's copy:
 
 | name | args | sent by |
 |---|---|---|
@@ -976,7 +1001,7 @@ with the motion (the golden test states the relation).
 
 ### 11.6 Tests (evidence)
 
-`npm test`: 38 pass, 0 fail (typecheck and lint clean); TESTS.md has the current evidence for every rung.
+`npm test`: 49 pass, 0 fail (typecheck and lint clean); TESTS.md has the current evidence for every rung.
 
 - **Golden (12)**, against `vectors/upstream.json` from the upstream C#: the aim and shot (94 cases: pull to power and
   direction, the 0.16 m full pull, the 0.001 power floor, the 0.10 m/s gate at begin and release, vertical pulls, the
@@ -988,7 +1013,7 @@ with the motion (the golden test states the relation).
   300 sound picks draw for draw, windmill angle over 600 steps.
 - **Rules (9)**: levels.json equals PORT.md's table; the 8 levels and pars (32); messages; pull and impulse limits;
   table-scale; settings; scorecard rules; key budget; the kit builder's bindings with the keys and ids the rules use.
-- **Fake room (16)**: three players play a hole to the end (free putting, B1 while rolling, a ball each owned by its
+- **Fake room (17)**: three players play a hole to the end (free putting, B1 while rolling, a ball each owned by its
   player, the next hole 2.05 s after the last hole-out, card on every client, digests agree); out of bounds and reset
   (both bounds, no stroke, `place` op, haptics); the stroke limit; the hole timeout; a player leaves mid-hole (not
   blocking, seat kept 30 s then freed, a new player takes the ball); a reload within the grace; a late joiner (current
@@ -996,7 +1021,8 @@ with the motion (the golden test states the relation).
   new referee advances, the old referee's row does not block); two courses in one room (separate seats, balls, ids, state
   keys and graph events); the scorecard after all 8 holes, course complete, PLAY AGAIN; restart my hole (K2, K3); VR
   hand, trigger, pull and release; graph events only for the own ball and latest shot; a remote capture's sink; a
-  spectator; desktop target mode, arrow keys, Esc, G for the x-ray, clicking the ball to putt.
+  spectator; desktop target mode, arrow keys, Esc, G for the x-ray, clicking the ball to putt; the hand spheres.
+- **Review findings (11)**, `test/fixes.test.ts`, each failing on the code before its fix (11.8).
 
 ### 11.7 Gaps and workarounds
 
@@ -1013,7 +1039,30 @@ with the motion (the golden test states the relation).
 | G9 | saved progress is per device (localStorage), not per account | a reload on the same device resumes the hole (rung 4) |
 | G10 | per-player behaviours took no bindings object events | closed by portkit `7e41822`: aim pads, ball picks and RESTART HOLE are bound to `GolfPlayer` (b3) |
 | G11 | the Unity side | built (section 12) |
-| G12 | portkit kit side: the C# bindings writer has no graph-event entry (`Bindings.EventEntry` has no `Name`, and `"graph"` is not in `EventKinds`), so a kit builder cannot write `{"kind":"graph","name":...}` | `GolfPlayer.Start` registers the three ball-graph events with `RegisterGraphEvent`; listed as a kit gap in the report |
+| G12 | portkit kit side: the C# bindings writer had no graph-event entry | closed by portkit `d8f370d`: the kit builder binds the three ball-graph events with `stage.GraphEvent` (bindings: 22 events); `RegisterGraphEvent` in `GolfPlayer.Start` is gone |
+| G13 | portkit: no `GraphWriter.V4` | closed by portkit `d8f370d`: the `xray` op uses `g.V4`; the builder's own helper is gone |
+| G14 | the local relay kept seats between Play sessions | closed by portkit `d8f370d`: `playtest.sh` empties the saved room; the Play-mode driver always clicks JOIN |
+
+### 11.8 Review fixes (2026-11-25, REVIEW-FINDINGS.md "mini-golf")
+
+| # | Finding | Fix | Test (`test/fixes.test.ts` unless named) |
+|---|---|---|---|
+| 1 | the hole timeout scored a non-finisher at strokes so far (even 0), and a ball sinking at the timeout got OUT OF TIME | `Round.missedScore` (at least strokes + 1 and par + 2; the limit when set); a capturing ball gets 2 s (`CAPTURE_GRACE`) | finding 1 (three tests); `scenarios.test.ts` "hole timeout" now expects par + 2 |
+| 2 | leave and rejoin (or a slow reload) skipped a hole with no penalty; the course-complete panel disagreed with the card | when a hole ends, every row that joined at or before it and has no result is scored as not finished from the referee's `seen`; the panel shows the card's total | finding 2 (three tests) |
+| 3 | `stroke-limit` could be exceeded in the 1 s before the pick-up | `CanTakeAction` refuses at the limit | finding 3 |
+| 4 | a reload during the sink left `capturing` set with no deadline: stuck for the hole (for good with no timeout) | a restored capture with no deadline finishes the hole; the ball is not put back | finding 4 |
+| 5 | licences: the OFL text was not in the bundle; Liberation Sans had no copyright lines | `Assets/Kit/Licenses/` (MinimalGolfVR MIT, Kenney's licence, the CC0 1.0 legal code, Space Mono's OFL, portkit MIT) packed beside the notices, plus the kit's `LiberationSans - OFL.txt`; both fonts' copyright lines and the full OFL 1.1 in the notices; the script banner's MIT notice in full | rung 2 (`Logs/portkit_bundles.txt` lists the six licence texts in each bundle) |
+| 6 | after RESTART HOLE the message used `levelStrokes`, the card `holeStrokes` | the message uses `holeStrokes` | finding 6; rung 3 (RESTART HOLE then the cup) |
+| 7 | the ball graph's 1.25 and 0.001 did not scale with `table-scale` | both are `PkAssistR` times their ratio to 0.04, as `CupAssist` | finding 7 (reads the builder source; the graph itself is checked by rung 2 and exercised at the default scale by rung 3) |
+| 8 | stale comments and 11.1 said the clip lists are empty | corrected (`AudioManager.ts`, `MinimalGolfGame.ts`, 11.1) | |
+| 9 | the card kept every departed row (unbounded leaf); 10 board lines; no leaf-size test | `MAX_ROWS` 24 and names cut to 24 characters; the board shows seated players first | finding 9 (28 comings and goings; the leaf and a worst case under 16 KiB) |
+| 10 | kit copy at 7e41822 | re-synced to portkit 812f285 | `npm test` |
+
+**Known issues left.** (a) The capture grace needs the referee to have seen `capturing`: a ball that drops within the
+relay's delay of the timeout can still be scored out of time (as the reviewer's race, now a window of one round trip
+instead of 0.62 s). (b) A departed player whose row was dropped to make room (after 24 rows) comes back as a new row from
+the current hole, as a late joiner does; holes missed before that show `-`, not a score. Both are rare and small, and a
+fix would need the referee to wait for every client or keep an unbounded card.
 
 ## 12. The Unity side as built (kit, graphs, rungs 2 to 4)
 
@@ -1057,7 +1106,11 @@ mini-golf                      relay graph (Refs: 61 objects), Variables PkRoot
 - Text: upstream's TMP texts kept (LiberationSans SDF); clicks go through BoxColliders on the UI layer (GraphicRaycasters
   and persistent listeners removed, chess's way). PLAY AGAIN's label loses "• TRIGGER" (D6).
 - Behaviours are plain (no upstream stand-in feeds them: the TypeScript's fields are its own); object keys are the
-  ones the rules use. bindings: 83 objects (8 synced, 19 clickable), 61 refs, 3 behaviours, 19 events.
+  ones the rules use. bindings: 83 objects (8 synced, 19 clickable), 61 refs, 3 behaviours, 22 events (19 clicks and the
+  three ball-graph events, `stage.GraphEvent`).
+- Licences: `Assets/Kit/Licenses/` (MinimalGolfVR's MIT licence, Kenney's `License.txt`, the CC0 1.0 legal code, Space
+  Mono's OFL, portkit's MIT licence) goes into both bundles beside `THIRD-PARTY-NOTICES.md`, with TextMesh Pro's
+  `LiberationSans - OFL.txt` added by the kit.
 - Desktop aiming in Play mode showed one limit of `desktop-aim="pull"`: the click goes where the hand is pulled to, so
   a weak putt toward the player means clicking just beyond the ball, where the ball itself hides the green. The player
   then clicks to the side and turns the aim with the arrow keys (5 degrees a tap), or walks round the table.
@@ -1082,7 +1135,7 @@ dynamic while setting its position every frame).
 | `Golf_Ball_Hit_01..03.wav` (no licence) | `Assets/Kit/Audio/putt1..3.wav` = `switch15..17.wav` | "51 UI sound effects" by Kenney, https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks | CC0 |
 | `Ball_Fall_To_The_Empty_Hole_01..03.wav` (no licence) | `Assets/Kit/Audio/cup1..3.ogg` = `metalPot1..3.ogg` | "50 RPG sound effects" by Kenney, https://opengameart.org/content/50-rpg-sound-effects | CC0 (`license.txt` in the zip) |
 | `Classic_Woosh.wav`, three music tracks | nothing | never played (H5) / no licence | left out |
-| (new) scorecard font | `Assets/Kit/Fonts/SpaceMono-Regular.ttf` | Google Fonts, https://github.com/google/fonts/tree/main/ofl/spacemono | SIL OFL 1.1 |
+| (new) scorecard font | `Assets/Kit/Fonts/SpaceMono-Regular.ttf` (licence: `Assets/Kit/Licenses/SpaceMono-OFL.txt`) | Google Fonts, https://github.com/google/fonts/tree/main/ofl/spacemono | SIL OFL 1.1 |
 
 Each file was downloaded into its own folder and its type checked (`file`: WAV PCM, Ogg Vorbis, TrueType). kenney.nl's
 own download needs a signed link from its page script, so the same Kenney packs were taken from OpenGameArt, where
@@ -1103,7 +1156,8 @@ offset are not ours to set.
 ### 12.6 Rungs 2 to 4
 
 See `TESTS.md` for the evidence lines. Rung 2 (`PortKit/Kit/Check`): 0 disallowed graph nodes, 83 bindings resolve,
-hash matches, Android 1,214 KiB and Windows 1,301 KiB both PASS the app's kit check. Rung 3 (`playtest/single.json`) and
+hash matches, Android 1,217 KiB and Windows 1,316 KiB both PASS the app's kit check (1,214 and 1,301 KiB before the
+2026-11-25 re-sync: the licence texts and the newer relay graph). Rung 3 (`playtest/single.json`) and
 rung 4 (`playtest/multi.json`) drive the table through the SDK's desktop player with portkit's InputSim (clicks on the
 green and the board, Space, arrow keys, R).
 

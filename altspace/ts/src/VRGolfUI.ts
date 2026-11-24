@@ -111,7 +111,9 @@ export class VRGolfUI extends Behaviour {
 
     // UpdateCourseComplete
     this.show(this.courseCompleteCanvas, game.courseComplete);
-    if (game.courseComplete && this.courseCompleteTotal) this.courseCompleteTotal.text = seated ? String(me!.totalStrokes) : "-";
+    // The card's total (what the scorecard shows, holes scored as not finished included), not the player's own count.
+    const myRow = game.RowOf(uid);
+    if (game.courseComplete && this.courseCompleteTotal) this.courseCompleteTotal.text = seated && myRow ? String(Round.rowTotal(myRow)) : "-";
 
     // New: JOIN / LEAVE and the scorecard.
     if (this.joinLabel) this.joinLabel.text = seated ? "LEAVE" : Round.freeSlot(game.card, game.settings.maxPlayers) < 0 && !game.RowOf(uid) ? "TABLE FULL" : "JOIN";
@@ -122,9 +124,14 @@ export class VRGolfUI extends Behaviour {
   }
 }
 
-/** The scorecard panel's lines: header, par, then a row per player in slot order. */
-export function ScorecardLines(card: readonly Round.CardRow[], currentHole: number): string[] {
+/**
+ * The scorecard panel's lines: header, par, then at most `rows` player rows (the board has MAX_SLOTS row lines):
+ * seated players in slot order first, then departed players, the latest to leave first.
+ */
+export function ScorecardLines(card: readonly Round.CardRow[], currentHole: number, rows: number = Round.MAX_SLOTS): string[] {
   const out = [Round.headerLine(), Round.parLine(LEVELS.map((l) => l.par))];
-  for (const row of Round.sortedRows(card)) out.push(Round.rowLine(row, currentHole));
+  const seated = Round.sortedRows(card.filter((r) => r.slot >= 0));
+  const gone = card.filter((r) => r.slot < 0).sort((a, b) => b.leftAt - a.leftAt || a.uid.localeCompare(b.uid));
+  for (const row of [...seated, ...gone].slice(0, rows)) out.push(Round.rowLine(row, currentHole));
   return out;
 }

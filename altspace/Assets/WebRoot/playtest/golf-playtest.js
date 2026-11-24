@@ -79,8 +79,8 @@
 
   async function join(name) {
     await sleep(1500);
-    if (debug().seat(debug().myUid()) >= 0) say("INFO", name + " is still seated from an earlier visit (space state lasts 24 h)");
-    else await clickObject("joinButton", "JOIN");
+    // playtest.sh empties the local relay's saved room before each run: nobody is seated from an earlier one
+    await clickObject("joinButton", "JOIN");
     const seated = await until(() => debug().seat(debug().myUid()) >= 0 && me() && me().slot >= 0, 20000, 200);
     let label = "";
     for (let i = 0; i < 20 && label !== "LEAVE"; i++) {
@@ -203,21 +203,40 @@
     check(shows === "True", "the own ball shows", shows);
     await cmd("shot start 0 " + (spawn[1] + 0.45) + " " + (spawn[2] - 0.35) + " 0 " + spawn[1] + " " + (spawn[2] + 0.25) + " 60");
 
-    // ---- hole 1 to the cup ----
+    // ---- hole 1: one short putt, RESTART HOLE (board button, real mouse), then to the cup ----
+    {
+      const f = frame();
+      const ball = debug().ballWorld(slot);
+      const dx = f.hole[0] - ball[0];
+      const dz = f.hole[2] - ball[2];
+      const d = Math.hypot(dx, dz);
+      await putt([dx / d, dz / d], 0.0105, 0, "a short first putt");
+      await settle(15000);
+      await ready(20000);
+      await clickObject("restartButton", "RESTART HOLE");
+      const restarted = await until(() => me().feedback === "LEVEL RESTARTED", 4000, 50);
+      await ready(5000);
+      const back = debug().ballWorld(slot);
+      check(!!restarted && me().levelStrokes === 0 && me().holeStrokes === 1 && Math.hypot(back[0] - spawn[0], back[2] - spawn[2]) < 0.01,
+        "RESTART HOLE (board button): ball back at the reset point, level strokes 0, the hole keeps its stroke (K2)", `level ${me().levelStrokes}, hole ${me().holeStrokes}, ball ${fmt(back)}`);
+    }
     const holed = await playToCup(8, 0.03);
     const strokes = me().levelStrokes;
-    check(holed, "hole 1 played to the cup with desktop controls (click the green, Space)", `${strokes} strokes, finished ${me().finished}`);
+    const holeStrokes = me().holeStrokes;
+    check(holed, "hole 1 played to the cup with desktop controls (click the green, Space)", `${strokes} strokes this attempt, ${holeStrokes} on the hole, finished ${me().finished}`);
     const strokesText = await probe("text", debug().pathOf("strokesText"));
-    check(strokesText === String(strokes) && strokes >= 1, "the board shows the stroke count", `board '${strokesText}', player ${strokes}`);
+    check(strokesText === String(strokes) && strokes >= 1, "the board shows the stroke count (this attempt, as upstream)", `board '${strokesText}', player ${strokes}`);
     await sleep(700);
     const scale = P(await probe("scale", ballPath));
     const sunk = P(await probe("pos", ballPath));
     const hole = debug().holeWorld();
     check(holed && scale[0] < 0.2 && sunk[1] < hole[1], "the capture: the ball shrinks and sinks into the cup (sink op, ball graph)", `scale ${fmt(scale)}, ball ${fmt(sunk)}, hole ${fmt(hole)}`);
     const toast = await probe("text", debug().pathOf("feedbackText"));
-    check(/^HOLE COMPLETE/.test(toast), "the hole-complete message shows", toast);
+    const par = 2; // hole 1, THE WARM UP
+    const expected = holeStrokes < par ? "UNDER PAR!" : holeStrokes === par ? "ON PAR!" : "+" + (holeStrokes - par) + " OVER PAR";
+    check(toast === "HOLE COMPLETE  \u2022  " + expected, "the hole-complete message counts the hole's strokes, the restarted attempt included (review finding 6)", `${toast} (${holeStrokes} strokes, par ${par})`);
     const card = await probe("text", debug().pathOf("cardLine2"));
-    check(new RegExp("\\s" + strokes + "\\s").test(card), "the scorecard records the hole", card);
+    check(new RegExp("\\s" + holeStrokes + "\\s").test(card), "the scorecard records the hole, the restarted attempt included", card);
     const next = await until(() => debug().hole() === 1, 8000, 100);
     const name2 = await probe("text", debug().pathOf("courseText"));
     const level2 = await probe("text", debug().pathOf("levelText"));
@@ -370,9 +389,12 @@
       const ballBack = await ready(20000);
       check(!!ballBack, "B's ball is back on the green under B's control after the reload", JSON.stringify(me()));
       await sleep(2500);
-      send({ kind: "back", digest: debug().digest() });
+      send({ kind: "back", stamp: debug().stamp() });
       const theirs = await until(() => heard.find((m) => m.kind === "digest2"), 20000, 250);
-      check(!!theirs && theirs.digest === debug().digest(), "both pages hold the same state digest after the reload", theirs ? `${theirs.digest} / ${debug().digest()}` : "no digest heard");
+      // digests are compared at the same version (the same writes): wait until this page has the other's version
+      const same = theirs && (await until(() => debug().version() === theirs.stamp.version, 10000, 100));
+      const mineNow = debug().stamp();
+      check(!!same && theirs.stamp.digest === mineNow.digest, "both pages hold the same state digest after the reload (at the same version)", theirs ? `${theirs.stamp.digest} / ${mineNow.digest} at ${mineNow.version}` : "no digest heard");
       try {
         sessionStorage.removeItem("golfTestReloaded");
       } catch (e) {
@@ -453,8 +475,10 @@
       check(rows.every((r) => r.strokes[0] !== null && r.strokes[0] >= 1), "the scorecard has both players' strokes for hole 1", JSON.stringify(rows.map((r) => [r.name, r.strokes[0]])));
       // B reloads now; A waits for its word and compares digests
       const backMsg = await until(() => heard.find((m) => m.kind === "back"), 120000, 250);
-      check(!!backMsg && backMsg.digest === debug().digest(), "B's page, reloaded, holds the same state as A's (digest)", backMsg ? `${backMsg.digest} / ${debug().digest()}` : "no word from B");
-      send({ kind: "digest2", digest: debug().digest() });
+      const same = backMsg && (await until(() => debug().version() === backMsg.stamp.version, 10000, 100));
+      const mineNow = debug().stamp();
+      check(!!same && backMsg.stamp.digest === mineNow.digest, "B's page, reloaded, holds the same state as A's (digest at the same version)", backMsg ? `${backMsg.stamp.digest} / ${mineNow.digest} at ${mineNow.version}` : "no word from B");
+      send({ kind: "digest2", stamp: debug().stamp() });
       await sleep(1500);
     } else {
       await until(() => heard.some((m) => m.kind === "aHoled"), 180000, 250);

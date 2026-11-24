@@ -289,6 +289,8 @@ export function readSettings(settings: ReadonlyMap<string, string>): GolfSetting
 
 /** Seconds a player may be missing from the instance before the referee marks their row as left. */
 const ABSENT_SECONDS = 3;
+/** Seconds past the hole timeout a ball already dropping into the cup has to finish (the sink takes 0.62 s). */
+export const CAPTURE_GRACE = 2;
 
 export class MinimalGolfGame extends Behaviour {
   /** What other clients may ask the referee to run (SendCommand): the board's JOIN / LEAVE and PLAY AGAIN. */
@@ -321,7 +323,7 @@ export class MinimalGolfGame extends Behaviour {
   /** B2: the left and right hand's green sphere (attached to the local hands in a headset). */
   handSpheres: Array<GameObject | null> = [];
   board: GameObject | null = null;
-  /** Left out (no licence; PORT.md 6.4): empty until CC0 replacements are chosen. */
+  /** Kenney's CC0 replacements for upstream's unlicensed effects (THIRD-PARTY-NOTICES.md): three putts, three cup drops. */
   shotClips: AudioClipRef[] = [];
   holeClips: AudioClipRef[] = [];
   collisionClip: AudioClipRef | null = null;
@@ -461,7 +463,7 @@ export class MinimalGolfGame extends Behaviour {
     const row = this.RowOf(caller.uid);
     if (row && row.slot >= 0) {
       row.left = false;
-      row.name = caller.displayName;
+      row.name = caller.displayName.slice(0, Round.NAME_MAX);
     } else {
       const slot = Round.freeSlot(this.card, this.settings.maxPlayers);
       if (slot < 0) return; // the table is full
@@ -470,7 +472,10 @@ export class MinimalGolfGame extends Behaviour {
         row.slot = slot;
         row.left = false;
         row.joined = Math.max(row.joined, joined);
-      } else this.card.push(Round.newRow(caller.uid, caller.displayName, slot, joined));
+      } else {
+        this.card = Round.makeRoom(this.card);
+        this.card.push(Round.newRow(caller.uid, caller.displayName, slot, joined));
+      }
     }
     this.card = Round.sortedRows(this.card);
     this.Commit();
@@ -519,7 +524,20 @@ export class MinimalGolfGame extends Behaviour {
     this.revealStart = this.Now();
     this.holeDoneAt = 0;
     this.firstHoledAt = 0;
+    for (const row of this.card) row.seen = 0;
     this.Commit();
+  }
+
+  /** The strokes a player has on the current hole as far as the referee knows: their report, never below what it saw. */
+  private StrokesSoFar(row: Round.CardRow, hole: number): number {
+    const gp = this.PlayerByUid(row.uid);
+    const reported = gp && gp.round === this.round && gp.hole === hole ? gp.holeStrokes : 0;
+    return Math.max(reported, row.seen ?? 0);
+  }
+
+  private PlayerByUid(uid: string): GolfPlayer | null {
+    for (const p of this.Networking.GetPlayers()) if (p.uid === uid) return this.PlayerBehaviour<GolfPlayer>(p, "GolfPlayer");
+    return null;
   }
 
   /** Runs on the referee every tick: seats, results, the end of the hole, the next level (CaptureBall :695-703). */
@@ -554,26 +572,43 @@ export class MinimalGolfGame extends Behaviour {
 
     const hole = this.currentLevelIndex;
     if (!this.courseComplete && hole >= 0) {
-      // Results, as each player reports them in their own state.
+      // Results, as each player reports them in their own state. The referee keeps the most strokes it has seen on
+      // this hole (`seen`): a count that goes down (a modified page) or goes away (a leave, a reload) does not lower it.
       for (const p of this.Networking.GetPlayers()) {
         const gp = this.PlayerBehaviour<GolfPlayer>(p, "GolfPlayer");
         const row = this.RowOf(p.uid);
-        if (!gp || !row || row.slot < 0 || gp.round !== this.round || gp.hole !== hole || gp.finished === 0) continue;
-        if (Round.record(row, hole, gp.holeStrokes, gp.finished === 2 ? "max" : gp.finished === 3 ? "dnf" : "")) {
+        if (!gp || !row || gp.round !== this.round || gp.hole !== hole) continue;
+        if (!Round.isFinished(row, hole) && gp.holeStrokes > (row.seen ?? 0)) {
+          row.seen = Math.max(0, Math.trunc(gp.holeStrokes));
+          changed = true;
+        }
+        if (row.slot < 0 || gp.finished === 0) continue;
+        const strokes = this.StrokesSoFar(row, hole);
+        if (Round.record(row, hole, strokes, gp.finished === 2 ? "max" : gp.finished === 3 ? "dnf" : "")) {
           if (this.firstHoledAt === 0) this.firstHoledAt = now;
           changed = true;
         }
       }
-      // Hole timeout (PORT.md 3.4 "Not blocking the group"): the rest are recorded with their strokes so far.
-      if (this.settings.holeTimeout > 0 && this.firstHoledAt > 0 && now >= this.firstHoledAt + this.settings.holeTimeout && this.holeDoneAt === 0) {
+      // Hole timeout (PORT.md 3.4 "Not blocking the group"): the rest are scored as not finished (Round.missedScore:
+      // at least strokes so far + 1, never a free hole). A ball that is dropping into the cup right now gets
+      // CAPTURE_GRACE to finish first.
+      const par = LEVELS[hole]?.par ?? 0;
+      const timeoutAt = this.firstHoledAt + this.settings.holeTimeout;
+      if (this.settings.holeTimeout > 0 && this.firstHoledAt > 0 && now >= timeoutAt && this.holeDoneAt === 0) {
         for (const row of Round.activeRows(this.card, hole)) {
           if (Round.isFinished(row, hole)) continue;
           const gp = this.PlayerInSlot(row.slot);
-          if (Round.record(row, hole, gp && gp.round === this.round && gp.hole === hole ? gp.holeStrokes : 0, "dnf")) changed = true;
+          if (gp && gp.round === this.round && gp.hole === hole && gp.capturing && now < timeoutAt + CAPTURE_GRACE) continue;
+          if (Round.record(row, hole, Round.missedScore(this.StrokesSoFar(row, hole), par, this.settings.strokeLimit), "dnf")) changed = true;
         }
       }
       if (this.holeDoneAt === 0 && Round.holeFinished(this.card, hole)) {
         this.holeDoneAt = now;
+        // Everyone who joined at or before this hole and has no result (they left, or reloaded too slowly) is scored as
+        // not finished, so leaving and coming back never skips a hole.
+        for (const row of this.card) {
+          if (row.joined <= hole && !Round.isFinished(row, hole)) Round.record(row, hole, Round.missedScore(this.StrokesSoFar(row, hole), par, this.settings.strokeLimit), "dnf");
+        }
         changed = true;
       }
       if (this.holeDoneAt > 0 && now >= this.holeDoneAt + ADVANCE_SECONDS) {

@@ -207,6 +207,10 @@ namespace MiniGolf
             stage.Behaviour(ui, "VRGolfUI", boardFields);
             var player = stage.Behaviour(systems, "GolfPlayer", new JObject { ["game"] = stage.BehaviourValue(game) });
 
+            // the ball graph's reports (GolfRelay.ts GRAPH_EVENTS), to the per-player behaviour: the local copy acts on them
+            stage.GraphEvent("golfCapture", player, "OnGolfCapture");
+            stage.GraphEvent("golfRest", player, "OnGolfRest");
+            stage.GraphEvent("golfImpact", player, "OnGolfImpact");
             stage.Event(joinButton, "click", game, "ToggleJoin");
             stage.Event(playAgain, "click", game, "PlayAgain");
             stage.Event(restartButton, "click", player, "RestartMyHole");
@@ -395,10 +399,12 @@ namespace MiniGolf
                         {
                             var closeness = g.Keep(1f - g.Clamp01(distance / F("PkAssistR")));
                             var acceleration = g.Lerp(F("PkMinPull"), F("PkMaxPull"), closeness * closeness);
-                            g.If(g.Greater(distance, 0.001f), () =>
+                            // CupAssist's 0.001 and 1.25 are in upstream metres at table scale 0.05: they grow with the table
+                            // as every other length does (PkAssistR is assistRadius 0.04 times the factor)
+                            g.If(g.Greater(distance, F("PkAssistR") * (0.001f / 0.04f)), () =>
                                 g.Do(typeof(Rigidbody), "AddForce", new[] { typeof(Vector3), typeof(ForceMode) }, null, g.Normalized(offset) * acceleration, ForceMode.Acceleration));
                             g.If(g.And(g.And(g.Not(g.Greater(distance, F("PkCaptureR"))), g.Not(g.Greater(horizontal, F("PkMaxCapture")))),
-                                       g.Less(g.Abs(g.Y(position) - g.Y(hole)), 1.25f)), () =>
+                                       g.Less(g.Abs(g.Y(position) - g.Y(hole)), F("PkAssistR") * (1.25f / 0.04f))), () =>
                             {
                                 g.SetObjVar("PkArmed", false);
                                 g.PageEvent("golfCapture", Slot(), Shot());
@@ -564,12 +570,12 @@ namespace MiniGolf
                 g.Do(typeof(Shader), "SetGlobalFloat", new[] { typeof(string), typeof(float) }, null, "_PkRevealCount", count);
                 g.If(g.Greater(count, 0.5f), () =>
                 {
-                    g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkReveal0", V4(g, ops.Number(1), ops.Number(2), ops.Number(3), ops.Number(4)));
+                    g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkReveal0", g.V4(ops.Number(1), ops.Number(2), ops.Number(3), ops.Number(4)));
                     g.If(g.Greater(count, 1.5f), () =>
                     {
-                        g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkReveal1", V4(g, ops.Number(6), ops.Number(7), ops.Number(8), ops.Number(9)));
-                        g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkRevealSoft", V4(g, ops.Number(5), ops.Number(10), 0f, 0f));
-                    }, () => g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkRevealSoft", V4(g, ops.Number(5), 0f, 0f, 0f)));
+                        g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkReveal1", g.V4(ops.Number(6), ops.Number(7), ops.Number(8), ops.Number(9)));
+                        g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkRevealSoft", g.V4(ops.Number(5), ops.Number(10), 0f, 0f));
+                    }, () => g.Do(typeof(Shader), "SetGlobalVector", new[] { typeof(string), typeof(Vector4) }, null, "_PkRevealSoft", g.V4(ops.Number(5), 0f, 0f, 0f)));
                 });
             });
             // uiHeight | pip | height: RectTransform.sizeDelta.y (VRGolfUI.cs:194-195)
@@ -583,19 +589,6 @@ namespace MiniGolf
                 g.ForEach(graphics, typeof(UnityEngine.UI.Graphic), graphic =>
                     g.Do(typeof(UnityEngine.UI.Graphic), "CrossFadeAlpha", new[] { typeof(float), typeof(float), typeof(bool) }, graphic, alpha, 0f, true));
             });
-        }
-
-        /// <summary>new Vector4(x, y, z, w): GraphWriter has no helper for it (UnityEngine.Vector4..ctor is on the allow list).</summary>
-        static Val V4(GraphWriter g, object x, object y, object z, object w)
-        {
-            var ctor = typeof(Vector4).GetConstructor(new[] { typeof(float), typeof(float), typeof(float), typeof(float) });
-            g.usedMembers.Add("UnityEngine.Vector4..ctor");
-            var unit = g.Add(new InvokeMember(new Member(typeof(Vector4), ctor)));
-            g.Feed(unit, unit.inputParameters[0].key, x);
-            g.Feed(unit, unit.inputParameters[1].key, y);
-            g.Feed(unit, unit.inputParameters[2].key, z);
-            g.Feed(unit, unit.inputParameters[3].key, w);
-            return new Val(g, unit.result, typeof(Vector4));
         }
 
         // ------------------------------------------------------------------ the board

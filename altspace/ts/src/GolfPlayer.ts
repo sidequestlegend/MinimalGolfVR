@@ -13,7 +13,6 @@ import { ImpactPlaysSound } from "./GolfBallImpact.ts";
 import { CENTERING_SECONDS, GolfAim, HoleCompleteMessage, LevelMessage, MESSAGE_SECONDS, SINKING_SECONDS, AimLineColor, AimLineLength, type MinimalGolfGame } from "./MinimalGolfGame.ts";
 import { ProximityRevealVolume, type RevealSphere } from "./ProximityRevealVolume.ts";
 import { RevealVolumeManager } from "./RevealVolumeManager.ts";
-import { GRAPH_EVENTS } from "./GolfRelay.ts";
 import { DesktopAim, VRGolfClub, type ClubHost } from "./VRGolfClub.ts";
 
 /** `finished`: still playing, holed out, picked up at the stroke limit, out of time (hole timeout, set by the referee's card). */
@@ -145,8 +144,13 @@ export class GolfPlayer extends Behaviour implements ClubHost {
 
   // ---- upstream rules ---------------------------------------------------------------------------------------------
 
-  /** CanTakeAction (:552-555). "Speed at most 0.10" is the ball graph's report for the latest shot. */
+  /**
+   * CanTakeAction (:552-555). "Speed at most 0.10" is the ball graph's report for the latest shot. New: no stroke past
+   * the `stroke-limit` (the pick-up waits STROKE_LIMIT_GRACE for the cup assist; no putt may slip in meanwhile).
+   */
   CanTakeAction(): boolean {
+    const limit = this.game.settings?.strokeLimit ?? 0;
+    if (limit > 0 && this.holeStrokes >= limit) return false;
     return this.ballLive && !this.game.IsRevealing() && !this.capturing && this.finished === PLAYING && this.atRest && this.restShot >= this.shotNumber && this.game.Plays(this.Player!.uid);
   }
 
@@ -220,7 +224,9 @@ export class GolfPlayer extends Behaviour implements ClubHost {
     this.capturing = false;
     this.finished = HOLED;
     const level = this.game.CurrentLevel!;
-    this.ShowFeedback(HoleCompleteMessage(this.levelStrokes, level.par), MESSAGE_SECONDS.hole);
+    // The hole's strokes, restarted attempts included (K2), as the card records them; upstream's levelStrokes would
+    // call a restarted hole "UNDER PAR!" while the card shows it over.
+    this.ShowFeedback(HoleCompleteMessage(this.holeStrokes, level.par), MESSAGE_SECONDS.hole);
     this.RequestSerialization();
   }
 
@@ -254,15 +260,6 @@ export class GolfPlayer extends Behaviour implements ClubHost {
   }
 
   // ---- the tick -----------------------------------------------------------------------------------------------------
-
-  override Start(): void {
-    // The ball graph's reports (GolfRelay.GRAPH_EVENTS). Registered here rather than as {"kind":"graph"} bindings: the kit
-    // builder's C# bindings writer has no graph-event entry (portkit gap). Every copy registers; only the local player's
-    // acts on them (OnCaptureReported and the others check isLocal and the ball).
-    this.RegisterGraphEvent(GRAPH_EVENTS.capture, "OnGolfCapture");
-    this.RegisterGraphEvent(GRAPH_EVENTS.rest, "OnGolfRest");
-    this.RegisterGraphEvent(GRAPH_EVENTS.impact, "OnGolfImpact");
-  }
 
   /** B2: each hand's translucent green sphere, attached to the local player's hands in a headset (not on desktop). */
   private spheresAttached = false;
@@ -306,7 +303,8 @@ export class GolfPlayer extends Behaviour implements ClubHost {
       this.CancelAim();
       this.ballLive = false;
       // Seated again in the same hole (a reload, or back within the seat grace): the ball returns to the reset point.
-      this.spawnPending = slot >= 0 && this.hole === game.currentLevelIndex && this.finished === PLAYING;
+      // Not when the saved state was in the middle of the sink: that ball is in the cup (below).
+      this.spawnPending = slot >= 0 && this.hole === game.currentLevelIndex && this.finished === PLAYING && !this.capturing;
     }
     if (slot < 0 || game.courseComplete || game.currentLevelIndex < 0) {
       this.Idle();
@@ -321,6 +319,12 @@ export class GolfPlayer extends Behaviour implements ClubHost {
     if (this.spawnPending && !game.IsRevealing()) {
       this.spawnPending = false;
       this.InstantiateBallAtSpawn();
+    }
+    // A capture with no deadline is one restored from the device (a reload during the 0.62 s sink): the ball was
+    // already in the cup, so the hole is finished now rather than left capturing for good.
+    if (this.capturing && this.captureEndsAt < 0) {
+      this.spawnPending = false;
+      this.FinishCapture();
     }
     if (this.captureEndsAt >= 0 && this.Time.time >= this.captureEndsAt) this.FinishCapture();
     if (this.finished === PLAYING && game.ResultFor(uid, this.hole) !== null) {
