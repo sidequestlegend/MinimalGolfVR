@@ -7248,7 +7248,25 @@ ${label}`)));
             captures: p.captures
           };
         },
+        local: (x, y, z) => {
+          const level = golf().CurrentLevel;
+          return level ? xyz(level.InverseTransformPoint(new Vector3(x, y, z), golf().frame, golf().LevelPosition(level.index))) : null;
+        },
+        myUid: () => golf().Networking.LocalPlayer.uid,
+        rows: () => golf().card.map((r) => ({ uid: r.uid, name: r.name, slot: r.slot, strokes: r.strokes.slice(), left: r.left })),
         seat: (uid) => golf().SlotOf(uid),
+        // test levers (Play mode only): put the own ball somewhere (as physics or a hand could), and, on the referee, load a level
+        moveBall: (x, y, z) => {
+          const p = golf().LocalPlayer();
+          const ball = p && p.slot >= 0 ? golf().balls[p.slot] : null;
+          if (ball) ball.transform.position = new Vector3(x, y, z);
+          return !!ball;
+        },
+        loadLevel: (level) => {
+          if (!golf().Networking.IsReferee) return false;
+          golf().LoadLevel(level);
+          return true;
+        },
         result: (uid, hole) => golf().ResultFor(uid, hole)
       };
     }

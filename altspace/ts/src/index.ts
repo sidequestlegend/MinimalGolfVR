@@ -35,6 +35,10 @@ const game: GameDefinition = {
           feedbackLeft: p.feedbackUntil - p.Time.time, captures: p.captures,
         };
       },
+      local: (x: number, y: number, z: number) => {
+        const level = golf().CurrentLevel;
+        return level ? xyz(level.InverseTransformPoint(new Vector3(x, y, z), golf().frame, golf().LevelPosition(level.index))) : null;
+      },
       myUid: () => golf().Networking.LocalPlayer.uid,
       rows: () => golf().card.map((r) => ({ uid: r.uid, name: r.name, slot: r.slot, strokes: r.strokes.slice(), left: r.left })),
       seat: (uid: string) => golf().SlotOf(uid),

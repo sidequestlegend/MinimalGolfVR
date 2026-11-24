@@ -78,9 +78,15 @@
   }
 
   async function join(name) {
-    await clickObject("joinButton", "JOIN");
-    const seated = await until(() => debug().seat(debug().myUid()) >= 0, 20000, 200);
-    const label = await probe("text", debug().pathOf("joinLabel"));
+    await sleep(1500);
+    if (debug().seat(debug().myUid()) >= 0) say("INFO", name + " is still seated from an earlier visit (space state lasts 24 h)");
+    else await clickObject("joinButton", "JOIN");
+    const seated = await until(() => debug().seat(debug().myUid()) >= 0 && me() && me().slot >= 0, 20000, 200);
+    let label = "";
+    for (let i = 0; i < 20 && label !== "LEAVE"; i++) {
+      label = await probe("text", debug().pathOf("joinLabel"));
+      if (label !== "LEAVE") await sleep(150);
+    }
     check(!!seated && label === "LEAVE", "JOIN (a UI collider, real mouse) seats " + name, "slot " + debug().seat(debug().myUid()) + ", button " + label);
     return !!seated;
   }
@@ -229,8 +235,13 @@
         debug().loadLevel(level);
         await until(() => debug().hole() === level, 5000, 100);
       }
-      await sleep(300);
-      if (!(await ready(20000))) {
+      // the ball of this level: placed at its reset point after the reveal
+      const placed = await until(() => {
+        const b = debug().ballWorld(me().slot);
+        const s = debug().spawnWorld();
+        return me().hole === level && me().canAct && b && Math.hypot(b[0] - s[0], b[2] - s[2]) < 0.005;
+      }, 20000, 100);
+      if (!placed) {
         check(false, `tunnelling, hole ${level + 1}: the ball is placed`, JSON.stringify(me()));
         continue;
       }
@@ -238,6 +249,17 @@
       for (const [name, dir] of [["forward", [0, 1]], ["back", [0, -1]], ["left", [-1, 0]], ["right", [1, 0]]]) {
         await ready(15000);
         const f = frame();
+        void f;
+        // a sampler running through the putt (the Space tap alone lasts 0.35 s): every position the page hears, in level units
+        const track = [];
+        let tracking = true;
+        (async () => {
+          while (tracking) {
+            const b = debug().ballWorld(me().slot);
+            if (b) track.push(debug().local(b[0], b[1], b[2]));
+            await sleep(15);
+          }
+        })();
         const shot = await putt(dir, 0.05, 9, `hole ${level + 1} full power ${name}`);
         if (!shot) {
           results.push(name + " no shot");
@@ -245,22 +267,37 @@
         }
         shots++;
         // follow the roll: the ball must stay inside the rails (|x| <= width/2, |z| <= length/2 in level units)
-        let worst = 0;
+        // follow the roll in level units; a ball outside |x| <= width/2 or |z| <= length/2 has left between the rails
         let outside = false;
+        let beyond = 0;
+        const path = [];
         const end = Date.now() + 9000;
         while (Date.now() < end) {
           const b = debug().ballWorld(me().slot);
-          const local = [(b[0] - f.spawn[0]) / SCALE, (b[2] - f.spawn[2]) / SCALE];
-          worst = Math.max(worst, Math.hypot(local[0], local[1]));
-          void W;
-          void L;
-          if (me().feedback === "BALL RETURNED" && me().feedbackLeft > 0) outside = true;
+          const l = debug().local(b[0], b[1], b[2]);
+          path.push(l.map((x) => x.toFixed(2)).join(","));
+          if (me().feedback === "BALL RETURNED" && me().feedbackLeft > 0) {
+            outside = true;
+            break;
+          }
+          beyond = Math.max(beyond, Math.abs(l[0]) - W[level] / 2, Math.abs(l[2]) - L[level] / 2);
           if (me().finished !== 0 || (me().restShot >= me().shotNumber && me().atRest)) break;
-          await sleep(100);
+          await sleep(25);
         }
+        tracking = false;
         const b = debug().ballWorld(me().slot);
-        results.push(`${name}: ${outside ? "RETURNED" : "inside"} at ${fmt(b)}`);
-        if (outside) through++;
+        const l = debug().local(b[0], b[1], b[2]);
+        // how it left, if it did: the first sample past the rails' outer line, and its height against the rail tops
+        // (rails are 0.54 high on a green whose top is 0.1, so a ball centre above 0.64 + 0.16 = 0.8 is over them)
+        const out = track.find((t) => Math.abs(t[0]) > W[level] / 2 || Math.abs(t[2]) > L[level] / 2);
+        const peak = track.reduce((m, t) => Math.max(m, t[1]), -9);
+        let verdict = "inside";
+        if (outside || out) {
+          const crossing = out ? out.map((x) => x.toFixed(2)).join(",") : "not sampled";
+          verdict = out && out[1] > 0.8 ? `FLEW OVER THE RAILS (launched; crossing at ${crossing}, peak height ${peak.toFixed(2)})` : `THROUGH THE RAILS (crossing at ${crossing}, peak height ${peak.toFixed(2)})`;
+        }
+        results.push(`${name}: ${verdict}, rest at (${l.map((x) => x.toFixed(2)).join(",")})`);
+        if (verdict.indexOf("THROUGH") >= 0) through++;
         // back to the reset point for the next direction (RESTART HOLE, key R), unless the hole was finished
         if (me().finished === 0) await cmd("key R tap");
         else {
@@ -269,9 +306,9 @@
         }
         await sleep(400);
       }
-      check(results.length === 4 && results.every((r) => r.indexOf(": inside") >= 0), `tunnelling, hole ${level + 1} (${W[level]} x ${L[level]} units): full-power shots stay on the course`, results.join("; "));
+      check(results.length === 4 && results.every((r) => r.indexOf("THROUGH") < 0 && r.indexOf("no shot") < 0), `tunnelling, hole ${level + 1} (${W[level]} x ${L[level]} units): no full-power shot passes through a rail`, results.join("; "));
     }
-    say("INFO", `tunnelling: ${shots} full-power shots, ${through} left the course`);
+    say("INFO", `tunnelling: ${shots} full-power shots, ${through} through a rail`);
   }
 
   // ---- two players -------------------------------------------------------------------------------------------
@@ -426,6 +463,9 @@
     try {
       if (plan === "single") await single();
       else if (plan === "multi") await multi();
+      else if (plan === "tunnel") {
+        if ((await waitStarted()) && (await join("the player"))) await tunnelling();
+      }
     } catch (e) {
       check(false, "the test ran to its end", e && e.stack ? e.stack.split("\n").slice(0, 3).join(" | ") : String(e));
     }

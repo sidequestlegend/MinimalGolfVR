@@ -1,0 +1,893 @@
+local: script and bundles from the test server http://localhost:42700
+[main] INFO main in Play, page port 42600
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts: hole 0
+[main] CMD g1 probe pk1:mini-golf:0 pos Board/VR_UI/Buttons/Join
+[main] REPLY g1 -1.509 1.610 3.266
+[main] CMD g2 look -1.509 1.610 3.266
+[main] REPLY g2 ok camera at 0.00,1.60,0.00
+[main] CMD g3 click -1.509 1.610 3.266
+[main] REPLY g3 ok screen 643,421 of 1285x842
+[main] INFO click JOIN: ok screen 643,421 of 1285x842
+[main] CMD g4 probe pk1:mini-golf:0 text Board/VR_UI/Buttons/Join/Label
+[main] REPLY g4 LEAVE
+[main] PASS JOIN (a UI collider, real mouse) seats the player: slot 0, button LEAVE
+[main] CMD g5 look 0 0.7130005 0.3475
+[main] REPLY g5 ok camera at 0.00,1.60,0.00
+[main] CMD g6 click 0 0.7074999999999999 0.2975
+[main] REPLY g6 ok screen 643,383 of 1285x842
+[main] CMD g7 key UpArrow tap
+[main] REPLY g7 ok
+[main] CMD g8 key UpArrow tap
+[main] REPLY g8 ok
+[main] CMD g9 key UpArrow tap
+[main] REPLY g9 ok
+[main] CMD g10 key UpArrow tap
+[main] REPLY g10 ok
+[main] CMD g11 key UpArrow tap
+[main] REPLY g11 ok
+[main] CMD g12 key UpArrow tap
+[main] REPLY g12 ok
+[main] CMD g13 key UpArrow tap
+[main] REPLY g13 ok
+[main] CMD g14 key UpArrow tap
+[main] REPLY g14 ok
+[main] CMD g15 key UpArrow tap
+[main] REPLY g15 ok
+[main] CMD g16 key Space tap
+[main] REPLY g16 ok
+[main] INFO hole 1 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g17 key R tap
+[main] REPLY g17 ok
+[main] CMD g18 look 0 0.713 0.3475
+[main] REPLY g18 ok camera at 0.00,1.60,0.00
+[main] CMD g19 click 0 0.7074999999999999 0.39749999999999996
+[main] REPLY g19 ok screen 643,454 of 1285x842
+[main] CMD g20 key UpArrow tap
+[main] REPLY g20 ok
+[main] CMD g21 key UpArrow tap
+[main] REPLY g21 ok
+[main] CMD g22 key UpArrow tap
+[main] REPLY g22 ok
+[main] CMD g23 key UpArrow tap
+[main] REPLY g23 ok
+[main] CMD g24 key UpArrow tap
+[main] REPLY g24 ok
+[main] CMD g25 key UpArrow tap
+[main] REPLY g25 ok
+[main] CMD g26 key UpArrow tap
+[main] REPLY g26 ok
+[main] CMD g27 key UpArrow tap
+[main] REPLY g27 ok
+[main] CMD g28 key UpArrow tap
+[main] REPLY g28 ok
+[main] CMD g29 key Space tap
+[main] REPLY g29 ok
+[main] INFO hole 1 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g30 key R tap
+[main] REPLY g30 ok
+[main] CMD g31 look 0 0.713 0.3475
+[main] REPLY g31 ok camera at 0.00,1.60,0.00
+[main] CMD g32 click 0.05 0.7074999999999999 0.3475
+[main] REPLY g32 ok screen 681,419 of 1285x842
+[main] CMD g33 key UpArrow tap
+[main] REPLY g33 ok
+[main] CMD g34 key UpArrow tap
+[main] REPLY g34 ok
+[main] CMD g35 key UpArrow tap
+[main] REPLY g35 ok
+[main] CMD g36 key UpArrow tap
+[main] REPLY g36 ok
+[main] CMD g37 key UpArrow tap
+[main] REPLY g37 ok
+[main] CMD g38 key UpArrow tap
+[main] REPLY g38 ok
+[main] CMD g39 key UpArrow tap
+[main] REPLY g39 ok
+[main] CMD g40 key UpArrow tap
+[main] REPLY g40 ok
+[main] CMD g41 key UpArrow tap
+[main] REPLY g41 ok
+[main] CMD g42 key Space tap
+[main] REPLY g42 ok
+[main] INFO hole 1 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g43 key R tap
+[main] REPLY g43 ok
+[main] CMD g44 look -4.063814e-10 0.713 0.3475
+[main] REPLY g44 ok camera at 0.00,1.60,0.00
+[main] CMD g45 click -0.050000000406381404 0.7074999999999999 0.3475
+[main] REPLY g45 ok screen 604,419 of 1285x842
+[main] CMD g46 key UpArrow tap
+[main] REPLY g46 ok
+[main] CMD g47 key UpArrow tap
+[main] REPLY g47 ok
+[main] CMD g48 key UpArrow tap
+[main] REPLY g48 ok
+[main] CMD g49 key UpArrow tap
+[main] REPLY g49 ok
+[main] CMD g50 key UpArrow tap
+[main] REPLY g50 ok
+[main] CMD g51 key UpArrow tap
+[main] REPLY g51 ok
+[main] CMD g52 key UpArrow tap
+[main] REPLY g52 ok
+[main] CMD g53 key UpArrow tap
+[main] REPLY g53 ok
+[main] CMD g54 key UpArrow tap
+[main] REPLY g54 ok
+[main] CMD g55 key Space tap
+[main] REPLY g55 ok
+[main] INFO hole 1 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g56 key R tap
+[main] REPLY g56 ok
+[main] PASS tunnelling, hole 1 (4.4 x 10.5 units): no full-power shot passes through a rail: forward: inside, rest at (0.00,0.26,-5.09); back: inside, rest at (0.00,0.26,5.09); left: inside, rest at (2.04,0.26,-4.05); right: inside, rest at (-2.04,0.26,-4.05)
+[main] CMD g57 look -0.075 0.7132849 0.25
+[main] REPLY g57 ok camera at 0.00,1.60,0.00
+[main] CMD g58 click -0.075 0.7074999999999999 0.2
+[main] REPLY g58 ok screen 631,383 of 1285x842
+[main] CMD g59 key UpArrow tap
+[main] REPLY g59 ok
+[main] CMD g60 key UpArrow tap
+[main] REPLY g60 ok
+[main] CMD g61 key UpArrow tap
+[main] REPLY g61 ok
+[main] CMD g62 key UpArrow tap
+[main] REPLY g62 ok
+[main] CMD g63 key UpArrow tap
+[main] REPLY g63 ok
+[main] CMD g64 key UpArrow tap
+[main] REPLY g64 ok
+[main] CMD g65 key UpArrow tap
+[main] REPLY g65 ok
+[main] CMD g66 key UpArrow tap
+[main] REPLY g66 ok
+[main] CMD g67 key UpArrow tap
+[main] REPLY g67 ok
+[main] CMD g68 key Space tap
+[main] REPLY g68 ok
+[main] INFO hole 2 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g69 key R tap
+[main] REPLY g69 ok
+[main] CMD g70 look -0.075 0.713 0.25
+[main] REPLY g70 ok camera at 0.00,1.60,0.00
+[main] CMD g71 click -0.075 0.7074999999999999 0.3
+[main] REPLY g71 ok screen 654,455 of 1285x842
+[main] CMD g72 key UpArrow tap
+[main] REPLY g72 ok
+[main] CMD g73 key UpArrow tap
+[main] REPLY g73 ok
+[main] CMD g74 key UpArrow tap
+[main] REPLY g74 ok
+[main] CMD g75 key UpArrow tap
+[main] REPLY g75 ok
+[main] CMD g76 key UpArrow tap
+[main] REPLY g76 ok
+[main] CMD g77 key UpArrow tap
+[main] REPLY g77 ok
+[main] CMD g78 key UpArrow tap
+[main] REPLY g78 ok
+[main] CMD g79 key UpArrow tap
+[main] REPLY g79 ok
+[main] CMD g80 key UpArrow tap
+[main] REPLY g80 ok
+[main] CMD g81 key Space tap
+[main] REPLY g81 ok
+[main] INFO hole 2 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g82 key R tap
+[main] REPLY g82 ok
+[main] CMD g83 look -0.075 0.713 0.25
+[main] REPLY g83 ok camera at 0.00,1.60,0.00
+[main] CMD g84 click -0.024999999999999994 0.7074999999999999 0.25
+[main] REPLY g84 ok screen 680,409 of 1285x842
+[main] CMD g85 key UpArrow tap
+[main] REPLY g85 ok
+[main] CMD g86 key UpArrow tap
+[main] REPLY g86 ok
+[main] CMD g87 key UpArrow tap
+[main] REPLY g87 ok
+[main] CMD g88 key UpArrow tap
+[main] REPLY g88 ok
+[main] CMD g89 key UpArrow tap
+[main] REPLY g89 ok
+[main] CMD g90 key UpArrow tap
+[main] REPLY g90 ok
+[main] CMD g91 key UpArrow tap
+[main] REPLY g91 ok
+[main] CMD g92 key UpArrow tap
+[main] REPLY g92 ok
+[main] CMD g93 key UpArrow tap
+[main] REPLY g93 ok
+[main] CMD g94 key Space tap
+[main] REPLY g94 ok
+[main] INFO hole 2 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g95 key R tap
+[main] REPLY g95 ok
+[main] CMD g96 look -0.075 0.713 0.25
+[main] REPLY g96 ok camera at 0.00,1.60,0.00
+[main] CMD g97 click -0.125 0.7074999999999999 0.25
+[main] REPLY g97 ok screen 605,431 of 1285x842
+[main] CMD g98 key UpArrow tap
+[main] REPLY g98 ok
+[main] CMD g99 key UpArrow tap
+[main] REPLY g99 ok
+[main] CMD g100 key UpArrow tap
+[main] REPLY g100 ok
+[main] CMD g101 key UpArrow tap
+[main] REPLY g101 ok
+[main] CMD g102 key UpArrow tap
+[main] REPLY g102 ok
+[main] CMD g103 key UpArrow tap
+[main] REPLY g103 ok
+[main] CMD g104 key UpArrow tap
+[main] REPLY g104 ok
+[main] CMD g105 key UpArrow tap
+[main] REPLY g105 ok
+[main] CMD g106 key UpArrow tap
+[main] REPLY g106 ok
+[main] CMD g107 key Space tap
+[main] REPLY g107 ok
+[main] INFO hole 2 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g108 key R tap
+[main] REPLY g108 ok
+[main] PASS tunnelling, hole 2 (6.2 x 14.5 units): no full-power shot passes through a rail: forward: inside, rest at (-1.50,0.26,-7.09); back: inside, rest at (-1.50,0.26,-3.50); left: inside, rest at (2.94,0.26,-6.00); right: inside, rest at (-2.94,0.26,-6.00)
+[main] CMD g109 look 0 0.7145 0.1275
+[main] REPLY g109 ok camera at 0.00,1.60,0.00
+[main] CMD g110 click 0 0.7074999999999999 0.0775
+[main] REPLY g110 ok screen 643,380 of 1285x842
+[main] CMD g111 key UpArrow tap
+[main] REPLY g111 ok
+[main] CMD g112 key UpArrow tap
+[main] REPLY g112 ok
+[main] CMD g113 key UpArrow tap
+[main] REPLY g113 ok
+[main] CMD g114 key UpArrow tap
+[main] REPLY g114 ok
+[main] CMD g115 key UpArrow tap
+[main] REPLY g115 ok
+[main] CMD g116 key UpArrow tap
+[main] REPLY g116 ok
+[main] CMD g117 key UpArrow tap
+[main] REPLY g117 ok
+[main] CMD g118 key UpArrow tap
+[main] REPLY g118 ok
+[main] CMD g119 key UpArrow tap
+[main] REPLY g119 ok
+[main] CMD g120 key Space tap
+[main] REPLY g120 ok
+[main] INFO hole 3 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g121 key R tap
+[main] REPLY g121 ok
+[main] CMD g122 look -2.322179e-10 0.713 0.1275
+[main] REPLY g122 ok camera at 0.00,1.60,0.00
+[main] CMD g123 click -2.322179e-10 0.7074999999999999 0.1775
+[main] REPLY g123 ok screen 643,460 of 1285x842
+[main] CMD g124 key UpArrow tap
+[main] REPLY g124 ok
+[main] CMD g125 key UpArrow tap
+[main] REPLY g125 ok
+[main] CMD g126 key UpArrow tap
+[main] REPLY g126 ok
+[main] CMD g127 key UpArrow tap
+[main] REPLY g127 ok
+[main] CMD g128 key UpArrow tap
+[main] REPLY g128 ok
+[main] CMD g129 key UpArrow tap
+[main] REPLY g129 ok
+[main] CMD g130 key UpArrow tap
+[main] REPLY g130 ok
+[main] CMD g131 key UpArrow tap
+[main] REPLY g131 ok
+[main] CMD g132 key UpArrow tap
+[main] REPLY g132 ok
+[main] CMD g133 key Space tap
+[main] REPLY g133 ok
+[main] INFO hole 3 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g134 key R tap
+[main] REPLY g134 ok
+[main] CMD g135 look 0 0.713 0.1275
+[main] REPLY g135 ok camera at 0.00,1.60,0.00
+[main] CMD g136 click 0.05 0.7074999999999999 0.1275
+[main] REPLY g136 ok screen 683,420 of 1285x842
+[main] CMD g137 key UpArrow tap
+[main] REPLY g137 ok
+[main] CMD g138 key UpArrow tap
+[main] REPLY g138 ok
+[main] CMD g139 key UpArrow tap
+[main] REPLY g139 ok
+[main] CMD g140 key UpArrow tap
+[main] REPLY g140 ok
+[main] CMD g141 key UpArrow tap
+[main] REPLY g141 ok
+[main] CMD g142 key UpArrow tap
+[main] REPLY g142 ok
+[main] CMD g143 key UpArrow tap
+[main] REPLY g143 ok
+[main] CMD g144 key UpArrow tap
+[main] REPLY g144 ok
+[main] CMD g145 key UpArrow tap
+[main] REPLY g145 ok
+[main] CMD g146 key Space tap
+[main] REPLY g146 ok
+[main] INFO hole 3 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g147 key R tap
+[main] REPLY g147 ok
+[main] CMD g148 look 3.488609e-10 0.713 0.1275
+[main] REPLY g148 ok camera at 0.00,1.60,0.00
+[main] CMD g149 click -0.049999999651139104 0.7074999999999999 0.1275
+[main] REPLY g149 ok screen 602,420 of 1285x842
+[main] CMD g150 key UpArrow tap
+[main] REPLY g150 ok
+[main] CMD g151 key UpArrow tap
+[main] REPLY g151 ok
+[main] CMD g152 key UpArrow tap
+[main] REPLY g152 ok
+[main] CMD g153 key UpArrow tap
+[main] REPLY g153 ok
+[main] CMD g154 key UpArrow tap
+[main] REPLY g154 ok
+[main] CMD g155 key UpArrow tap
+[main] REPLY g155 ok
+[main] CMD g156 key UpArrow tap
+[main] REPLY g156 ok
+[main] CMD g157 key UpArrow tap
+[main] REPLY g157 ok
+[main] CMD g158 key UpArrow tap
+[main] REPLY g158 ok
+[main] CMD g159 key Space tap
+[main] REPLY g159 ok
+[main] INFO hole 3 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g160 key R tap
+[main] REPLY g160 ok
+[main] PASS tunnelling, hole 3 (7 x 20 units): no full-power shot passes through a rail: forward: inside, rest at (-3.31,0.26,-5.17); back: inside, rest at (-0.00,0.26,8.65); left: inside, rest at (3.34,0.26,-8.45); right: inside, rest at (-3.34,0.26,-8.45)
+[main] CMD g161 look -0.0775 0.7132733 0.1725
+[main] REPLY g161 ok camera at 0.00,1.60,0.00
+[main] CMD g162 click -0.0775 0.7074999999999999 0.12249999999999998
+[main] REPLY g162 ok screen 626,384 of 1285x842
+[main] CMD g163 key UpArrow tap
+[main] REPLY g163 ok
+[main] CMD g164 key UpArrow tap
+[main] REPLY g164 ok
+[main] CMD g165 key UpArrow tap
+[main] REPLY g165 ok
+[main] CMD g166 key UpArrow tap
+[main] REPLY g166 ok
+[main] CMD g167 key UpArrow tap
+[main] REPLY g167 ok
+[main] CMD g168 key UpArrow tap
+[main] REPLY g168 ok
+[main] CMD g169 key UpArrow tap
+[main] REPLY g169 ok
+[main] CMD g170 key UpArrow tap
+[main] REPLY g170 ok
+[main] CMD g171 key UpArrow tap
+[main] REPLY g171 ok
+[main] CMD g172 key Space tap
+[main] REPLY g172 ok
+[main] INFO hole 4 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g173 key R tap
+[main] REPLY g173 ok
+[main] CMD g174 look -0.0775 0.713 0.1725
+[main] REPLY g174 ok camera at 0.00,1.60,0.00
+[main] CMD g175 click -0.0775 0.7074999999999999 0.22249999999999998
+[main] REPLY g175 ok screen 659,455 of 1285x842
+[main] CMD g176 key UpArrow tap
+[main] REPLY g176 ok
+[main] CMD g177 key UpArrow tap
+[main] REPLY g177 ok
+[main] CMD g178 key UpArrow tap
+[main] REPLY g178 ok
+[main] CMD g179 key UpArrow tap
+[main] REPLY g179 ok
+[main] CMD g180 key UpArrow tap
+[main] REPLY g180 ok
+[main] CMD g181 key UpArrow tap
+[main] REPLY g181 ok
+[main] CMD g182 key UpArrow tap
+[main] REPLY g182 ok
+[main] CMD g183 key UpArrow tap
+[main] REPLY g183 ok
+[main] CMD g184 key UpArrow tap
+[main] REPLY g184 ok
+[main] CMD g185 key Space tap
+[main] REPLY g185 ok
+[main] INFO hole 4 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g186 key R tap
+[main] REPLY g186 ok
+[main] CMD g187 look -0.0775 0.713 0.1725
+[main] REPLY g187 ok camera at 0.00,1.60,0.00
+[main] CMD g188 click -0.027499999999999997 0.7074999999999999 0.1725
+[main] REPLY g188 ok screen 679,404 of 1285x842
+[main] CMD g189 key UpArrow tap
+[main] REPLY g189 ok
+[main] CMD g190 key UpArrow tap
+[main] REPLY g190 ok
+[main] CMD g191 key UpArrow tap
+[main] REPLY g191 ok
+[main] CMD g192 key UpArrow tap
+[main] REPLY g192 ok
+[main] CMD g193 key UpArrow tap
+[main] REPLY g193 ok
+[main] CMD g194 key UpArrow tap
+[main] REPLY g194 ok
+[main] CMD g195 key UpArrow tap
+[main] REPLY g195 ok
+[main] CMD g196 key UpArrow tap
+[main] REPLY g196 ok
+[main] CMD g197 key UpArrow tap
+[main] REPLY g197 ok
+[main] CMD g198 key Space tap
+[main] REPLY g198 ok
+[main] INFO hole 4 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g199 key R tap
+[main] REPLY g199 ok
+[main] CMD g200 look -0.0775 0.713 0.1725
+[main] REPLY g200 ok camera at 0.00,1.60,0.00
+[main] CMD g201 click -0.1275 0.7074999999999999 0.1725
+[main] REPLY g201 ok screen 606,436 of 1285x842
+[main] CMD g202 key UpArrow tap
+[main] REPLY g202 ok
+[main] CMD g203 key UpArrow tap
+[main] REPLY g203 ok
+[main] CMD g204 key UpArrow tap
+[main] REPLY g204 ok
+[main] CMD g205 key UpArrow tap
+[main] REPLY g205 ok
+[main] CMD g206 key UpArrow tap
+[main] REPLY g206 ok
+[main] CMD g207 key UpArrow tap
+[main] REPLY g207 ok
+[main] CMD g208 key UpArrow tap
+[main] REPLY g208 ok
+[main] CMD g209 key UpArrow tap
+[main] REPLY g209 ok
+[main] CMD g210 key UpArrow tap
+[main] REPLY g210 ok
+[main] CMD g211 key Space tap
+[main] REPLY g211 ok
+[main] INFO hole 4 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g212 key R tap
+[main] REPLY g212 ok
+[main] PASS tunnelling, hole 4 (7.4 x 18 units): no full-power shot passes through a rail: forward: inside, rest at (-1.55,0.26,-8.84); back: inside, rest at (-1.55,0.26,-4.36); left: inside, rest at (3.54,0.26,-7.55); right: inside, rest at (-3.54,0.26,-7.55)
+[main] CMD g213 look 0 0.7144999999999999 0.08750000000000002
+[main] REPLY g213 ok camera at 0.00,1.60,0.00
+[main] CMD g214 click 0 0.7074999999999999 0.03750000000000002
+[main] REPLY g214 ok screen 643,380 of 1285x842
+[main] CMD g215 key UpArrow tap
+[main] REPLY g215 ok
+[main] CMD g216 key UpArrow tap
+[main] REPLY g216 ok
+[main] CMD g217 key UpArrow tap
+[main] REPLY g217 ok
+[main] CMD g218 key UpArrow tap
+[main] REPLY g218 ok
+[main] CMD g219 key UpArrow tap
+[main] REPLY g219 ok
+[main] CMD g220 key UpArrow tap
+[main] REPLY g220 ok
+[main] CMD g221 key UpArrow tap
+[main] REPLY g221 ok
+[main] CMD g222 key UpArrow tap
+[main] REPLY g222 ok
+[main] CMD g223 key UpArrow tap
+[main] REPLY g223 ok
+[main] CMD g224 key Space tap
+[main] REPLY g224 ok
+[main] INFO hole 5 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g225 key R tap
+[main] REPLY g225 ok
+[main] CMD g226 look -1.820265e-10 0.713 0.08749995
+[main] REPLY g226 ok camera at 0.00,1.60,0.00
+[main] CMD g227 click -1.820265e-10 0.7074999999999999 0.13749995
+[main] REPLY g227 ok screen 643,461 of 1285x842
+[main] CMD g228 key UpArrow tap
+[main] REPLY g228 ok
+[main] CMD g229 key UpArrow tap
+[main] REPLY g229 ok
+[main] CMD g230 key UpArrow tap
+[main] REPLY g230 ok
+[main] CMD g231 key UpArrow tap
+[main] REPLY g231 ok
+[main] CMD g232 key UpArrow tap
+[main] REPLY g232 ok
+[main] CMD g233 key UpArrow tap
+[main] REPLY g233 ok
+[main] CMD g234 key UpArrow tap
+[main] REPLY g234 ok
+[main] CMD g235 key UpArrow tap
+[main] REPLY g235 ok
+[main] CMD g236 key UpArrow tap
+[main] REPLY g236 ok
+[main] CMD g237 key Space tap
+[main] REPLY g237 ok
+[main] INFO hole 5 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g238 key R tap
+[main] REPLY g238 ok
+[main] CMD g239 look -3.140946e-12 0.713 0.08749995
+[main] REPLY g239 ok camera at 0.00,1.60,0.00
+[main] CMD g240 click 0.04999999999685906 0.7074999999999999 0.08749995
+[main] REPLY g240 ok screen 683,421 of 1285x842
+[main] CMD g241 key UpArrow tap
+[main] REPLY g241 ok
+[main] CMD g242 key UpArrow tap
+[main] REPLY g242 ok
+[main] CMD g243 key UpArrow tap
+[main] REPLY g243 ok
+[main] CMD g244 key UpArrow tap
+[main] REPLY g244 ok
+[main] CMD g245 key UpArrow tap
+[main] REPLY g245 ok
+[main] CMD g246 key UpArrow tap
+[main] REPLY g246 ok
+[main] CMD g247 key UpArrow tap
+[main] REPLY g247 ok
+[main] CMD g248 key UpArrow tap
+[main] REPLY g248 ok
+[main] CMD g249 key UpArrow tap
+[main] REPLY g249 ok
+[main] CMD g250 key Space tap
+[main] REPLY g250 ok
+[main] INFO hole 5 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g251 key R tap
+[main] REPLY g251 ok
+[main] CMD g252 look 1.719316e-10 0.713 0.08749995
+[main] REPLY g252 ok camera at 0.00,1.60,0.00
+[main] CMD g253 click -0.0499999998280684 0.7074999999999999 0.08749995
+[main] REPLY g253 ok screen 602,421 of 1285x842
+[main] CMD g254 key UpArrow tap
+[main] REPLY g254 ok
+[main] CMD g255 key UpArrow tap
+[main] REPLY g255 ok
+[main] CMD g256 key UpArrow tap
+[main] REPLY g256 ok
+[main] CMD g257 key UpArrow tap
+[main] REPLY g257 ok
+[main] CMD g258 key UpArrow tap
+[main] REPLY g258 ok
+[main] CMD g259 key UpArrow tap
+[main] REPLY g259 ok
+[main] CMD g260 key UpArrow tap
+[main] REPLY g260 ok
+[main] CMD g261 key UpArrow tap
+[main] REPLY g261 ok
+[main] CMD g262 key UpArrow tap
+[main] REPLY g262 ok
+[main] CMD g263 key Space tap
+[main] REPLY g263 ok
+[main] INFO hole 5 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g264 key R tap
+[main] REPLY g264 ok
+[main] PASS tunnelling, hole 5 (8.5 x 21.5 units): no full-power shot passes through a rail: forward: inside, rest at (0.00,0.26,-10.59); back: inside, rest at (-0.00,0.26,-2.99); left: inside, rest at (4.09,0.26,-9.25); right: inside, rest at (-4.09,0.26,-9.25)
+[main] CMD g265 look -0.1625 0.7144999999999999 0.23750000000000004
+[main] REPLY g265 ok camera at 0.00,1.60,0.00
+[main] CMD g266 click -0.1625 0.7074999999999999 0.18750000000000006
+[main] REPLY g266 ok screen 620,388 of 1285x842
+[main] CMD g267 key UpArrow tap
+[main] REPLY g267 ok
+[main] CMD g268 key UpArrow tap
+[main] REPLY g268 ok
+[main] CMD g269 key UpArrow tap
+[main] REPLY g269 ok
+[main] CMD g270 key UpArrow tap
+[main] REPLY g270 ok
+[main] CMD g271 key UpArrow tap
+[main] REPLY g271 ok
+[main] CMD g272 key UpArrow tap
+[main] REPLY g272 ok
+[main] CMD g273 key UpArrow tap
+[main] REPLY g273 ok
+[main] CMD g274 key UpArrow tap
+[main] REPLY g274 ok
+[main] CMD g275 key UpArrow tap
+[main] REPLY g275 ok
+[main] CMD g276 key Space tap
+[main] REPLY g276 ok
+[main] INFO hole 6 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g277 key R tap
+[main] REPLY g277 ok
+[main] CMD g278 look -0.1625 0.713 0.2375
+[main] REPLY g278 ok camera at 0.00,1.60,0.00
+[main] CMD g279 click -0.1625 0.7074999999999999 0.2875
+[main] REPLY g279 ok screen 664,450 of 1285x842
+[main] CMD g280 key UpArrow tap
+[main] REPLY g280 ok
+[main] CMD g281 key UpArrow tap
+[main] REPLY g281 ok
+[main] CMD g282 key UpArrow tap
+[main] REPLY g282 ok
+[main] CMD g283 key UpArrow tap
+[main] REPLY g283 ok
+[main] CMD g284 key UpArrow tap
+[main] REPLY g284 ok
+[main] CMD g285 key UpArrow tap
+[main] REPLY g285 ok
+[main] CMD g286 key UpArrow tap
+[main] REPLY g286 ok
+[main] CMD g287 key UpArrow tap
+[main] REPLY g287 ok
+[main] CMD g288 key UpArrow tap
+[main] REPLY g288 ok
+[main] CMD g289 key Space tap
+[main] REPLY g289 ok
+[main] INFO hole 6 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g290 key R tap
+[main] REPLY g290 ok
+[main] CMD g291 look -0.1625 0.713 0.2375
+[main] REPLY g291 ok camera at 0.00,1.60,0.00
+[main] CMD g292 click -0.1125 0.7074999999999999 0.2375
+[main] REPLY g292 ok screen 675,399 of 1285x842
+[main] CMD g293 key UpArrow tap
+[main] REPLY g293 ok
+[main] CMD g294 key UpArrow tap
+[main] REPLY g294 ok
+[main] CMD g295 key UpArrow tap
+[main] REPLY g295 ok
+[main] CMD g296 key UpArrow tap
+[main] REPLY g296 ok
+[main] CMD g297 key UpArrow tap
+[main] REPLY g297 ok
+[main] CMD g298 key UpArrow tap
+[main] REPLY g298 ok
+[main] CMD g299 key UpArrow tap
+[main] REPLY g299 ok
+[main] CMD g300 key UpArrow tap
+[main] REPLY g300 ok
+[main] CMD g301 key UpArrow tap
+[main] REPLY g301 ok
+[main] CMD g302 key Space tap
+[main] REPLY g302 ok
+[main] INFO hole 6 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g303 key R tap
+[main] REPLY g303 ok
+[main] CMD g304 look -0.1625 0.713 0.2375
+[main] REPLY g304 ok camera at 0.00,1.60,0.00
+[main] CMD g305 click -0.21250000000000002 0.7074999999999999 0.2375
+[main] REPLY g305 ok screen 611,440 of 1285x842
+[main] CMD g306 key UpArrow tap
+[main] REPLY g306 ok
+[main] CMD g307 key UpArrow tap
+[main] REPLY g307 ok
+[main] CMD g308 key UpArrow tap
+[main] REPLY g308 ok
+[main] CMD g309 key UpArrow tap
+[main] REPLY g309 ok
+[main] CMD g310 key UpArrow tap
+[main] REPLY g310 ok
+[main] CMD g311 key UpArrow tap
+[main] REPLY g311 ok
+[main] CMD g312 key UpArrow tap
+[main] REPLY g312 ok
+[main] CMD g313 key UpArrow tap
+[main] REPLY g313 ok
+[main] CMD g314 key UpArrow tap
+[main] REPLY g314 ok
+[main] CMD g315 key Space tap
+[main] REPLY g315 ok
+[main] INFO hole 6 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g316 key R tap
+[main] REPLY g316 ok
+[main] PASS tunnelling, hole 6 (11.5 x 15 units): no full-power shot passes through a rail: forward: FLEW OVER THE RAILS (launched; crossing at -3.25,4.03,7.80, peak height 4.03), rest at (-3.25,0.27,-6.25); back: inside, rest at (-3.25,0.31,-3.03); left: inside, rest at (-0.91,0.26,-6.25); right: inside, rest at (-5.59,0.26,-6.25)
+[main] CMD g317 look 0 0.7144999999999999 0.28250000000000003
+[main] REPLY g317 ok camera at 0.00,1.60,0.00
+[main] CMD g318 click 0 0.7074999999999999 0.23250000000000004
+[main] REPLY g318 ok screen 643,382 of 1285x842
+[main] CMD g319 key UpArrow tap
+[main] REPLY g319 ok
+[main] CMD g320 key UpArrow tap
+[main] REPLY g320 ok
+[main] CMD g321 key UpArrow tap
+[main] REPLY g321 ok
+[main] CMD g322 key UpArrow tap
+[main] REPLY g322 ok
+[main] CMD g323 key UpArrow tap
+[main] REPLY g323 ok
+[main] CMD g324 key UpArrow tap
+[main] REPLY g324 ok
+[main] CMD g325 key UpArrow tap
+[main] REPLY g325 ok
+[main] CMD g326 key UpArrow tap
+[main] REPLY g326 ok
+[main] CMD g327 key UpArrow tap
+[main] REPLY g327 ok
+[main] CMD g328 key Space tap
+[main] REPLY g328 ok
+[main] INFO hole 7 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g329 key R tap
+[main] REPLY g329 ok
+[main] CMD g330 look -4.665723e-10 0.713 0.2825
+[main] REPLY g330 ok camera at 0.00,1.60,0.00
+[main] CMD g331 click -4.665723e-10 0.7074999999999999 0.33249999999999996
+[main] REPLY g331 ok screen 643,456 of 1285x842
+[main] CMD g332 key UpArrow tap
+[main] REPLY g332 ok
+[main] CMD g333 key UpArrow tap
+[main] REPLY g333 ok
+[main] CMD g334 key UpArrow tap
+[main] REPLY g334 ok
+[main] CMD g335 key UpArrow tap
+[main] REPLY g335 ok
+[main] CMD g336 key UpArrow tap
+[main] REPLY g336 ok
+[main] CMD g337 key UpArrow tap
+[main] REPLY g337 ok
+[main] CMD g338 key UpArrow tap
+[main] REPLY g338 ok
+[main] CMD g339 key UpArrow tap
+[main] REPLY g339 ok
+[main] CMD g340 key UpArrow tap
+[main] REPLY g340 ok
+[main] CMD g341 key Space tap
+[main] REPLY g341 ok
+[main] INFO hole 7 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g342 key R tap
+[main] REPLY g342 ok
+[main] CMD g343 look -6.915932e-11 0.713 0.2825
+[main] REPLY g343 ok camera at 0.00,1.60,0.00
+[main] CMD g344 click 0.049999999930840686 0.7074999999999999 0.2825
+[main] REPLY g344 ok screen 681,420 of 1285x842
+[main] CMD g345 key UpArrow tap
+[main] REPLY g345 ok
+[main] CMD g346 key UpArrow tap
+[main] REPLY g346 ok
+[main] CMD g347 key UpArrow tap
+[main] REPLY g347 ok
+[main] CMD g348 key UpArrow tap
+[main] REPLY g348 ok
+[main] CMD g349 key UpArrow tap
+[main] REPLY g349 ok
+[main] CMD g350 key UpArrow tap
+[main] REPLY g350 ok
+[main] CMD g351 key UpArrow tap
+[main] REPLY g351 ok
+[main] CMD g352 key UpArrow tap
+[main] REPLY g352 ok
+[main] CMD g353 key UpArrow tap
+[main] REPLY g353 ok
+[main] CMD g354 key Space tap
+[main] REPLY g354 ok
+[main] INFO hole 7 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g355 key R tap
+[main] REPLY g355 ok
+[main] CMD g356 look -2.322179e-10 0.713 0.2825
+[main] REPLY g356 ok camera at 0.00,1.60,0.00
+[main] CMD g357 click -0.0500000002322179 0.7074999999999999 0.2825
+[main] REPLY g357 ok screen 604,420 of 1285x842
+[main] CMD g358 key UpArrow tap
+[main] REPLY g358 ok
+[main] CMD g359 key UpArrow tap
+[main] REPLY g359 ok
+[main] CMD g360 key UpArrow tap
+[main] REPLY g360 ok
+[main] CMD g361 key UpArrow tap
+[main] REPLY g361 ok
+[main] CMD g362 key UpArrow tap
+[main] REPLY g362 ok
+[main] CMD g363 key UpArrow tap
+[main] REPLY g363 ok
+[main] CMD g364 key UpArrow tap
+[main] REPLY g364 ok
+[main] CMD g365 key UpArrow tap
+[main] REPLY g365 ok
+[main] CMD g366 key UpArrow tap
+[main] REPLY g366 ok
+[main] CMD g367 key Space tap
+[main] REPLY g367 ok
+[main] INFO hole 7 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g368 key R tap
+[main] REPLY g368 ok
+[main] PASS tunnelling, hole 7 (7.5 x 13.3 units): no full-power shot passes through a rail: forward: inside, rest at (0.14,0.26,5.43); back: inside, rest at (-0.00,0.35,-2.52); left: inside, rest at (3.59,0.26,-5.35); right: inside, rest at (-3.59,0.26,-5.35)
+[main] CMD g369 look 0 0.7145 0.2875
+[main] REPLY g369 ok camera at 0.00,1.60,0.00
+[main] CMD g370 click 0 0.7074999999999999 0.2375
+[main] REPLY g370 ok screen 643,382 of 1285x842
+[main] CMD g371 key UpArrow tap
+[main] REPLY g371 ok
+[main] CMD g372 key UpArrow tap
+[main] REPLY g372 ok
+[main] CMD g373 key UpArrow tap
+[main] REPLY g373 ok
+[main] CMD g374 key UpArrow tap
+[main] REPLY g374 ok
+[main] CMD g375 key UpArrow tap
+[main] REPLY g375 ok
+[main] CMD g376 key UpArrow tap
+[main] REPLY g376 ok
+[main] CMD g377 key UpArrow tap
+[main] REPLY g377 ok
+[main] CMD g378 key UpArrow tap
+[main] REPLY g378 ok
+[main] CMD g379 key UpArrow tap
+[main] REPLY g379 ok
+[main] CMD g380 key Space tap
+[main] REPLY g380 ok
+[main] INFO hole 8 full power forward: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g381 key R tap
+[main] REPLY g381 ok
+[main] CMD g382 look 2.32218e-10 0.713 0.2875
+[main] REPLY g382 ok camera at 0.00,1.60,0.00
+[main] CMD g383 click 2.32218e-10 0.7074999999999999 0.33749999999999997
+[main] REPLY g383 ok screen 643,456 of 1285x842
+[main] CMD g384 key UpArrow tap
+[main] REPLY g384 ok
+[main] CMD g385 key UpArrow tap
+[main] REPLY g385 ok
+[main] CMD g386 key UpArrow tap
+[main] REPLY g386 ok
+[main] CMD g387 key UpArrow tap
+[main] REPLY g387 ok
+[main] CMD g388 key UpArrow tap
+[main] REPLY g388 ok
+[main] CMD g389 key UpArrow tap
+[main] REPLY g389 ok
+[main] CMD g390 key UpArrow tap
+[main] REPLY g390 ok
+[main] CMD g391 key UpArrow tap
+[main] REPLY g391 ok
+[main] CMD g392 key UpArrow tap
+[main] REPLY g392 ok
+[main] CMD g393 key Space tap
+[main] REPLY g393 ok
+[main] INFO hole 8 full power back: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g394 key R tap
+[main] REPLY g394 ok
+[main] CMD g395 look -1.16109e-10 0.713 0.2875
+[main] REPLY g395 ok camera at 0.00,1.60,0.00
+[main] CMD g396 click 0.049999999883891005 0.7074999999999999 0.2875
+[main] REPLY g396 ok screen 681,420 of 1285x842
+[main] CMD g397 key UpArrow tap
+[main] REPLY g397 ok
+[main] CMD g398 key UpArrow tap
+[main] REPLY g398 ok
+[main] CMD g399 key UpArrow tap
+[main] REPLY g399 ok
+[main] CMD g400 key UpArrow tap
+[main] REPLY g400 ok
+[main] CMD g401 key UpArrow tap
+[main] REPLY g401 ok
+[main] CMD g402 key UpArrow tap
+[main] REPLY g402 ok
+[main] CMD g403 key UpArrow tap
+[main] REPLY g403 ok
+[main] CMD g404 key UpArrow tap
+[main] REPLY g404 ok
+[main] CMD g405 key UpArrow tap
+[main] REPLY g405 ok
+[main] CMD g406 key Space tap
+[main] REPLY g406 ok
+[main] INFO hole 8 full power left: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g407 key R tap
+[main] REPLY g407 ok
+[main] CMD g408 look -1.045028e-10 0.713 0.2875
+[main] REPLY g408 ok camera at 0.00,1.60,0.00
+[main] CMD g409 click -0.050000000104502805 0.7074999999999999 0.2875
+[main] REPLY g409 ok screen 604,420 of 1285x842
+[main] CMD g410 key UpArrow tap
+[main] REPLY g410 ok
+[main] CMD g411 key UpArrow tap
+[main] REPLY g411 ok
+[main] CMD g412 key UpArrow tap
+[main] REPLY g412 ok
+[main] CMD g413 key UpArrow tap
+[main] REPLY g413 ok
+[main] CMD g414 key UpArrow tap
+[main] REPLY g414 ok
+[main] CMD g415 key UpArrow tap
+[main] REPLY g415 ok
+[main] CMD g416 key UpArrow tap
+[main] REPLY g416 ok
+[main] CMD g417 key UpArrow tap
+[main] REPLY g417 ok
+[main] CMD g418 key UpArrow tap
+[main] REPLY g418 ok
+[main] CMD g419 key Space tap
+[main] REPLY g419 ok
+[main] INFO hole 8 full power right: pull 0.050 m + 9 steps, power 1.000, strokes 0 -> 1
+[main] CMD g420 key R tap
+[main] REPLY g420 ok
+[main] PASS tunnelling, hole 8 (8.5 x 13.3 units): no full-power shot passes through a rail: forward: inside, rest at (0.00,0.26,-6.49); back: inside, rest at (-0.00,0.41,-0.17); left: inside, rest at (4.09,0.26,-5.25); right: inside, rest at (-4.08,0.26,-5.25)
+[main] INFO tunnelling: 32 full-power shots, 0 through a rail
+[main] INFO page result 10 passed, 0 failed
+[main] DONE
+served: /web/pk-mini-golf.js x1, /web/playtest/golf-playtest.js x1, HEAD /kits/windows/mini-golf x1
+console (main editor): 1 error lines
+   [Exception] ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. | System.Collections.Generic.List`1[T].get_Item (System.Int32 index) (at <41d29b352f6a475ab1bf7c6628b82790>:0)
+RESULT 10 passed, 0 failed
+DONE
