@@ -40,7 +40,8 @@ test("all 8 upstream levels, in order, with their pars (A1)", () => {
     [1.235, 1.62, 1.73, 1.675, 1.785, 2.06, 1.675, 1.62],
     "A9's reveal lengths",
   );
-  assert.equal(LEVELS[6]!.provisional, true, "level 7's hole centre is still to be confirmed in the editor");
+  assert.ok(LEVELS.every((l) => !l.provisional), "every level read back from the imported scene (MiniGolfKitBuilder's report)");
+  assert.deepEqual([LEVELS[6]!.holeCenter.x, LEVELS[6]!.holeCenter.z], [-3.055, 1.463], "level 7's hole centre as the editor reads it");
 });
 
 test("messages are upstream's strings (A6, C5 with K1 fixed)", () => {
@@ -120,8 +121,11 @@ test("the game's state fits the room's key budget", () => {
   assert.ok(budget.userLeavesPerPlayer <= 6);
 });
 
-test("bindings are marked provisional until the kit builder writes them", () => {
-  assert.match(bindings.provisional, /PROVISIONAL/);
+test("bindings are the kit builder's (MiniGolfKitBuilder.cs), with the objects and ids the rules use", () => {
+  assert.equal(bindings.provisional, undefined);
   assert.equal(bindings.slug, "mini-golf");
-  assert.equal(bindings.behaviours.length, 3);
+  assert.deepEqual(bindings.behaviours.map((b: { id: string; type: string }) => `${b.id}:${b.type}`), ["b1:MinimalGolfGame", "b2:VRGolfUI", "b3:GolfPlayer"]);
+  for (const key of ["course", "aimLine", "joinButton", "restartButton", "playAgainButton", "handSphereL", "handSphereR"]) assert.ok(bindings.objects[key], key);
+  for (let k = 0; k < 8; k++) for (const key of [`ball${k}`, `ballPick${k}`, `level${k}`, `aimPad${k}`]) assert.ok(bindings.objects[key], key);
+  assert.equal(bindings.objects.ball0.sync, "transform");
 });

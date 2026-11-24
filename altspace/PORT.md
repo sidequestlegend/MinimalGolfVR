@@ -419,7 +419,7 @@ Levels exist only as scene objects. There is no level data file, no ScriptableOb
 | 4 BUMPER BEND | 4 | 7.4 x 18 | 0.37 x 0.9 | (-1.55, 0.29, -7.55) | (1.55, 0.11, 7.45) | 20 | wide gate with grass banks, 2 bumpers, diamond, island |
 | 5 GRAND TOUR | 5 | 8.5 x 21.5 | 0.43 x 1.08 | (0, 0.29, -9.25) | (0, 0.11, 9.2) | 22 | 2 gates with banks, island, triangle, diamond |
 | 6 HILLSIDE TURN | 4 | 11.5 x 15 (L shape) | 0.58 x 0.75 | (-3.25, 0.29, -6.25) | (4.35, 0.11, 5) | 27 | 3 hills, 12 rails |
-| 7 EASY ASCENT | 4 | 7.5 x 13.3 | 0.38 x 0.67 | (0, 0.29, -5.35) | about (-3.06, 0.11, 1.46): the HOLE group is moved to (2.8, 0, 3.65) and turned about -90 degrees, child at (-2.2, 0.11, 5.85). Computed here, to be confirmed in the editor | 20 | ramp, landing, 2 round corners |
+| 7 EASY ASCENT | 4 | 7.5 x 13.3 | 0.38 x 0.67 | (0, 0.29, -5.35) | (-3.055, 0.11, 1.463): the HOLE group is moved to (2.8, 0, 3.65) and turned by -90 degrees, child at (-2.2, 0.11, 5.85). Read in the editor from the imported scene (2026-11-24) | 20 | ramp, landing, 2 round corners |
 | 8 SUMMIT RUN | 6 | 8.5 x 13.3 | 0.43 x 0.67 | (0, 0.29, -5.25) | (0.65, 1.11, 5.3) on a raised landing | 19 | large launch ramp, 2 supports |
 
 What a level is made of (whole scene): 148 Unity primitives (88 cubes, 46 cylinders, 14 spheres) and 33 instances of 13 Kenney models. 92 box colliders (including 4 collider-only objects on the windmill) and 24 non-convex mesh colliders added to Kenney pieces as prefab overrides. Several Kenney pieces are scaled unevenly (for example the support at (14, 0.8, 7), the hill at (3.7, 2.05, 2.65)). Only 3 objects under the levels have a rotation other than identity besides the Kenney pieces: the two windmill blade colliders and level 7's HOLE group.

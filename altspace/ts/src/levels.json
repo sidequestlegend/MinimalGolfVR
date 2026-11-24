@@ -151,17 +151,16 @@
         -5.35
       ],
       "holeCenter": [
-        -3.06,
+        -3.055,
         0.11,
-        1.46
+        1.463
       ],
       "revealParts": 20,
       "slot": [
         30,
         0,
         69
-      ],
-      "provisional": true
+      ]
     },
     {
       "index": 7,

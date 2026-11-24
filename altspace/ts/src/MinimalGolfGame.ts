@@ -335,6 +335,7 @@ export class MinimalGolfGame extends Behaviour {
   impact!: CameraImpactShake;
   private appliedLayout = "";
   private appliedVisible: Array<boolean | null> = [];
+  private appliedPads: Array<boolean | null> = [];
   private revealSent = "";
   private ballShown: Array<boolean | null> = [];
   private readonly absentSince = new Map<string, number>();
@@ -615,6 +616,14 @@ export class MinimalGolfGame extends Behaviour {
       if (obj && this.appliedVisible[level] !== visible) {
         this.appliedVisible[level] = visible;
         obj.SetActive(visible);
+      }
+    });
+    // Only the current level's aim pad takes clicks (a click on another level's green would aim from far away).
+    this.aimPads.forEach((pad, level) => {
+      const on = level === this.currentLevelIndex;
+      if (pad && this.appliedPads[level] !== on) {
+        this.appliedPads[level] = on;
+        pad.SetActive(on);
       }
     });
   }

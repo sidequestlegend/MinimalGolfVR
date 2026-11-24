@@ -13,6 +13,7 @@ import { ImpactPlaysSound } from "./GolfBallImpact.ts";
 import { CENTERING_SECONDS, GolfAim, HoleCompleteMessage, LevelMessage, MESSAGE_SECONDS, SINKING_SECONDS, AimLineColor, AimLineLength, type MinimalGolfGame } from "./MinimalGolfGame.ts";
 import { ProximityRevealVolume, type RevealSphere } from "./ProximityRevealVolume.ts";
 import { RevealVolumeManager } from "./RevealVolumeManager.ts";
+import { GRAPH_EVENTS } from "./GolfRelay.ts";
 import { DesktopAim, VRGolfClub, type ClubHost } from "./VRGolfClub.ts";
 
 /** `finished`: still playing, holed out, picked up at the stroke limit, out of time (hole timeout, set by the referee's card). */
@@ -253,6 +254,15 @@ export class GolfPlayer extends Behaviour implements ClubHost {
   }
 
   // ---- the tick -----------------------------------------------------------------------------------------------------
+
+  override Start(): void {
+    // The ball graph's reports (GolfRelay.GRAPH_EVENTS). Registered here rather than as {"kind":"graph"} bindings: the kit
+    // builder's C# bindings writer has no graph-event entry (portkit gap). Every copy registers; only the local player's
+    // acts on them (OnCaptureReported and the others check isLocal and the ball).
+    this.RegisterGraphEvent(GRAPH_EVENTS.capture, "OnGolfCapture");
+    this.RegisterGraphEvent(GRAPH_EVENTS.rest, "OnGolfRest");
+    this.RegisterGraphEvent(GRAPH_EVENTS.impact, "OnGolfImpact");
+  }
 
   /** B2: each hand's translucent green sphere, attached to the local player's hands in a headset (not on desktop). */
   private spheresAttached = false;
