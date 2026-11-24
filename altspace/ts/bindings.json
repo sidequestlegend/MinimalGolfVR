@@ -1,0 +1,1009 @@
+{
+  "schema": 1,
+  "slug": "mini-golf",
+  "hash": "",
+  "provisional": "PROVISIONAL: written by tools/provisional-bindings.ts, not by the kit builder. Paths, keys and the clip lists will change when MiniGolfKitBuilder.cs exports the real file from the built prefab.",
+  "bundles": {
+    "windows": "",
+    "android": ""
+  },
+  "objects": {
+    "gameSystems": {
+      "path": "GameSystems",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "course": {
+      "path": "Course",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "level0": {
+      "path": "Course/Level 1 - THE WARM UP",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad0": {
+      "path": "Course/Level 1 - THE WARM UP/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level1": {
+      "path": "Course/Level 2 - THE GARDEN",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad1": {
+      "path": "Course/Level 2 - THE GARDEN/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level2": {
+      "path": "Course/Level 3 - WINDMILL WAY",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad2": {
+      "path": "Course/Level 3 - WINDMILL WAY/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level3": {
+      "path": "Course/Level 4 - BUMPER BEND",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad3": {
+      "path": "Course/Level 4 - BUMPER BEND/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level4": {
+      "path": "Course/Level 5 - GRAND TOUR",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad4": {
+      "path": "Course/Level 5 - GRAND TOUR/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level5": {
+      "path": "Course/Level 6 - HILLSIDE TURN",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad5": {
+      "path": "Course/Level 6 - HILLSIDE TURN/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level6": {
+      "path": "Course/Level 7 - EASY ASCENT",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad6": {
+      "path": "Course/Level 7 - EASY ASCENT/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "level7": {
+      "path": "Course/Level 8 - SUMMIT RUN",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "aimPad7": {
+      "path": "Course/Level 8 - SUMMIT RUN/AimPad",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball0": {
+      "path": "Course/Balls/Ball 0",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick0": {
+      "path": "Course/Balls/Ball 0/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball1": {
+      "path": "Course/Balls/Ball 1",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick1": {
+      "path": "Course/Balls/Ball 1/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball2": {
+      "path": "Course/Balls/Ball 2",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick2": {
+      "path": "Course/Balls/Ball 2/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball3": {
+      "path": "Course/Balls/Ball 3",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick3": {
+      "path": "Course/Balls/Ball 3/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball4": {
+      "path": "Course/Balls/Ball 4",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick4": {
+      "path": "Course/Balls/Ball 4/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball5": {
+      "path": "Course/Balls/Ball 5",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick5": {
+      "path": "Course/Balls/Ball 5/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball6": {
+      "path": "Course/Balls/Ball 6",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick6": {
+      "path": "Course/Balls/Ball 6/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "ball7": {
+      "path": "Course/Balls/Ball 7",
+      "sync": "transform",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "ballPick7": {
+      "path": "Course/Balls/Ball 7/Pick",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "aimLine": {
+      "path": "AimLine",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "board": {
+      "path": "Board",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "courseText": {
+      "path": "Board/VR_UI/GamePlayCard/Course",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "levelText": {
+      "path": "Board/VR_UI/GamePlayCard/Level",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "strokesText": {
+      "path": "Board/VR_UI/GamePlayCard/Strokes",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "parText": {
+      "path": "Board/VR_UI/GamePlayCard/Par",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip0": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip0",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip1": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip1",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip2": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip2",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip3": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip3",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip4": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip4",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip5": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip5",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip6": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip6",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "pip7": {
+      "path": "Board/VR_UI/GamePlayCard/ProgressGroup/Pip7",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "powerCanvas": {
+      "path": "Board/VR_UI/PowerMeter",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "powerLabel": {
+      "path": "Board/VR_UI/PowerMeter/Label",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "powerPercent": {
+      "path": "Board/VR_UI/PowerMeter/Percent",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg0": {
+      "path": "Board/VR_UI/PowerMeter/Seg0",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg1": {
+      "path": "Board/VR_UI/PowerMeter/Seg1",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg2": {
+      "path": "Board/VR_UI/PowerMeter/Seg2",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg3": {
+      "path": "Board/VR_UI/PowerMeter/Seg3",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg4": {
+      "path": "Board/VR_UI/PowerMeter/Seg4",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg5": {
+      "path": "Board/VR_UI/PowerMeter/Seg5",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg6": {
+      "path": "Board/VR_UI/PowerMeter/Seg6",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg7": {
+      "path": "Board/VR_UI/PowerMeter/Seg7",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg8": {
+      "path": "Board/VR_UI/PowerMeter/Seg8",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg9": {
+      "path": "Board/VR_UI/PowerMeter/Seg9",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg10": {
+      "path": "Board/VR_UI/PowerMeter/Seg10",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "seg11": {
+      "path": "Board/VR_UI/PowerMeter/Seg11",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "feedbackCanvas": {
+      "path": "Board/VR_UI/FeedbackToast",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "feedbackText": {
+      "path": "Board/VR_UI/FeedbackToast/Feedback",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "courseCompleteCanvas": {
+      "path": "Board/VR_UI/CourseComplete",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "courseCompleteTotal": {
+      "path": "Board/VR_UI/CourseComplete/ScoreBox/Total",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "playAgainButton": {
+      "path": "Board/VR_UI/CourseComplete/PlayAgain",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "cardLine0": {
+      "path": "Board/VR_UI/Scorecard/Line0",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine1": {
+      "path": "Board/VR_UI/Scorecard/Line1",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine2": {
+      "path": "Board/VR_UI/Scorecard/Line2",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine3": {
+      "path": "Board/VR_UI/Scorecard/Line3",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine4": {
+      "path": "Board/VR_UI/Scorecard/Line4",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine5": {
+      "path": "Board/VR_UI/Scorecard/Line5",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine6": {
+      "path": "Board/VR_UI/Scorecard/Line6",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine7": {
+      "path": "Board/VR_UI/Scorecard/Line7",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine8": {
+      "path": "Board/VR_UI/Scorecard/Line8",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "cardLine9": {
+      "path": "Board/VR_UI/Scorecard/Line9",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "joinButton": {
+      "path": "Board/VR_UI/Buttons/Join",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    },
+    "joinLabel": {
+      "path": "Board/VR_UI/Buttons/Join/Label",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "restartButton": {
+      "path": "Board/VR_UI/Buttons/Restart",
+      "sync": "none",
+      "grab": false,
+      "click": true,
+      "seat": false
+    }
+  },
+  "refs": [
+    "course",
+    "level0",
+    "level1",
+    "level2",
+    "level3",
+    "level4",
+    "level5",
+    "level6",
+    "level7",
+    "ball0",
+    "ball1",
+    "ball2",
+    "ball3",
+    "ball4",
+    "ball5",
+    "ball6",
+    "ball7",
+    "aimLine",
+    "courseText",
+    "levelText",
+    "strokesText",
+    "parText",
+    "pip0",
+    "pip1",
+    "pip2",
+    "pip3",
+    "pip4",
+    "pip5",
+    "pip6",
+    "pip7",
+    "powerCanvas",
+    "powerLabel",
+    "powerPercent",
+    "seg0",
+    "seg1",
+    "seg2",
+    "seg3",
+    "seg4",
+    "seg5",
+    "seg6",
+    "seg7",
+    "seg8",
+    "seg9",
+    "seg10",
+    "seg11",
+    "feedbackCanvas",
+    "feedbackText",
+    "courseCompleteCanvas",
+    "courseCompleteTotal",
+    "cardLine0",
+    "cardLine1",
+    "cardLine2",
+    "cardLine3",
+    "cardLine4",
+    "cardLine5",
+    "cardLine6",
+    "cardLine7",
+    "cardLine8",
+    "cardLine9",
+    "joinLabel"
+  ],
+  "behaviours": [
+    {
+      "id": "b1",
+      "type": "MinimalGolfGame",
+      "object": "gameSystems",
+      "fields": {
+        "course": {
+          "$obj": "course"
+        },
+        "levelObjects": [
+          {
+            "$obj": "level0"
+          },
+          {
+            "$obj": "level1"
+          },
+          {
+            "$obj": "level2"
+          },
+          {
+            "$obj": "level3"
+          },
+          {
+            "$obj": "level4"
+          },
+          {
+            "$obj": "level5"
+          },
+          {
+            "$obj": "level6"
+          },
+          {
+            "$obj": "level7"
+          }
+        ],
+        "aimPads": [
+          {
+            "$obj": "aimPad0"
+          },
+          {
+            "$obj": "aimPad1"
+          },
+          {
+            "$obj": "aimPad2"
+          },
+          {
+            "$obj": "aimPad3"
+          },
+          {
+            "$obj": "aimPad4"
+          },
+          {
+            "$obj": "aimPad5"
+          },
+          {
+            "$obj": "aimPad6"
+          },
+          {
+            "$obj": "aimPad7"
+          }
+        ],
+        "balls": [
+          {
+            "$obj": "ball0"
+          },
+          {
+            "$obj": "ball1"
+          },
+          {
+            "$obj": "ball2"
+          },
+          {
+            "$obj": "ball3"
+          },
+          {
+            "$obj": "ball4"
+          },
+          {
+            "$obj": "ball5"
+          },
+          {
+            "$obj": "ball6"
+          },
+          {
+            "$obj": "ball7"
+          }
+        ],
+        "ballPicks": [
+          {
+            "$obj": "ballPick0"
+          },
+          {
+            "$obj": "ballPick1"
+          },
+          {
+            "$obj": "ballPick2"
+          },
+          {
+            "$obj": "ballPick3"
+          },
+          {
+            "$obj": "ballPick4"
+          },
+          {
+            "$obj": "ballPick5"
+          },
+          {
+            "$obj": "ballPick6"
+          },
+          {
+            "$obj": "ballPick7"
+          }
+        ],
+        "ballAudio": [
+          {
+            "$comp": "ball0",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball1",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball2",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball3",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball4",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball5",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball6",
+            "kind": "AudioSource"
+          },
+          {
+            "$comp": "ball7",
+            "kind": "AudioSource"
+          }
+        ],
+        "aimLine": {
+          "$obj": "aimLine"
+        },
+        "board": {
+          "$obj": "board"
+        },
+        "shotClips": [],
+        "holeClips": [],
+        "collisionClip": null
+      }
+    },
+    {
+      "id": "b2",
+      "type": "VRGolfUI",
+      "object": "board",
+      "fields": {
+        "game": {
+          "$beh": "b1"
+        },
+        "courseText": {
+          "$comp": "courseText",
+          "kind": "TMP"
+        },
+        "levelText": {
+          "$comp": "levelText",
+          "kind": "TMP"
+        },
+        "strokesText": {
+          "$comp": "strokesText",
+          "kind": "TMP"
+        },
+        "parText": {
+          "$comp": "parText",
+          "kind": "TMP"
+        },
+        "pips": [
+          {
+            "$obj": "pip0"
+          },
+          {
+            "$obj": "pip1"
+          },
+          {
+            "$obj": "pip2"
+          },
+          {
+            "$obj": "pip3"
+          },
+          {
+            "$obj": "pip4"
+          },
+          {
+            "$obj": "pip5"
+          },
+          {
+            "$obj": "pip6"
+          },
+          {
+            "$obj": "pip7"
+          }
+        ],
+        "powerCanvas": {
+          "$obj": "powerCanvas"
+        },
+        "powerLabel": {
+          "$comp": "powerLabel",
+          "kind": "TMP"
+        },
+        "powerPercent": {
+          "$comp": "powerPercent",
+          "kind": "TMP"
+        },
+        "powerSegments": [
+          {
+            "$obj": "seg0"
+          },
+          {
+            "$obj": "seg1"
+          },
+          {
+            "$obj": "seg2"
+          },
+          {
+            "$obj": "seg3"
+          },
+          {
+            "$obj": "seg4"
+          },
+          {
+            "$obj": "seg5"
+          },
+          {
+            "$obj": "seg6"
+          },
+          {
+            "$obj": "seg7"
+          },
+          {
+            "$obj": "seg8"
+          },
+          {
+            "$obj": "seg9"
+          },
+          {
+            "$obj": "seg10"
+          },
+          {
+            "$obj": "seg11"
+          }
+        ],
+        "feedbackCanvas": {
+          "$obj": "feedbackCanvas"
+        },
+        "feedbackText": {
+          "$comp": "feedbackText",
+          "kind": "TMP"
+        },
+        "courseCompleteCanvas": {
+          "$obj": "courseCompleteCanvas"
+        },
+        "courseCompleteTotal": {
+          "$comp": "courseCompleteTotal",
+          "kind": "TMP"
+        },
+        "joinLabel": {
+          "$comp": "joinLabel",
+          "kind": "TMP"
+        },
+        "cardLines": [
+          {
+            "$comp": "cardLine0",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine1",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine2",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine3",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine4",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine5",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine6",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine7",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine8",
+            "kind": "TMP"
+          },
+          {
+            "$comp": "cardLine9",
+            "kind": "TMP"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b3",
+      "type": "GolfPlayer",
+      "perPlayer": true,
+      "fields": {
+        "game": {
+          "$beh": "b1"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "object": "joinButton",
+      "kind": "click",
+      "behaviour": "b1",
+      "method": "ToggleJoin"
+    },
+    {
+      "object": "restartButton",
+      "kind": "click",
+      "behaviour": "b1",
+      "method": "RestartMyHole"
+    },
+    {
+      "object": "playAgainButton",
+      "kind": "click",
+      "behaviour": "b1",
+      "method": "PlayAgain"
+    },
+    {
+      "kind": "graph",
+      "name": "golfCapture",
+      "behaviour": "b1",
+      "method": "OnGolfCapture"
+    },
+    {
+      "kind": "graph",
+      "name": "golfRest",
+      "behaviour": "b1",
+      "method": "OnGolfRest"
+    },
+    {
+      "kind": "graph",
+      "name": "golfImpact",
+      "behaviour": "b1",
+      "method": "OnGolfImpact"
+    }
+  ]
+}

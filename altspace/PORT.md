@@ -2,6 +2,8 @@
 
 Read-only analysis of the upstream clone at `C:\workspace\AltspaceGames\mini-golf`. Nothing was built, compiled, run or opened in Unity. Scene and prefab facts were read from the YAML text with a small parser, matching scripts by the GUIDs in their `.meta` files.
 
+**Status (2026-11-24):** the rules are ported to TypeScript in `ts/` and tested in Node (rung 1: golden vectors from the upstream C# and fake-room scenarios). Section 11 records what was built, the checklist status, the decisions and the gaps; sections 1 to 10 are the analysis it was built from. No Unity work has been done yet (kit, graphs, bundles).
+
 Reference conventions used below:
 
 - A bare script name such as `MinimalGolfGame.cs:528` means `Assets/MinimalGolf/Scripts/MinimalGolfGame.cs`, line 528.
@@ -248,7 +250,7 @@ All four panels are world-space canvases under `VR_UI` (local position (0.0031, 
 - Random numbers: only `Random.Range` for choosing a sound or music clip (`AudioManager.cs:155, 157, 176, 180`). No gameplay randomness.
 - Saved data: none. No `PlayerPrefs`, no files. The only file writes are in the editor-only test recorder (`Assets/Editor/TestHistoryRecorder.cs`), which is not ported.
 
-### 3.4 Multiplayer design (proposal)
+### 3.4 Multiplayer design (proposal; as built: 11.2)
 
 Upstream is one player, one ball, one table. The proposal keeps every rule of section 2 per player and adds only what several players on one table need.
 
@@ -789,3 +791,216 @@ Local Multiplayer is desktop only, so trigger, grip, pose and haptics are exerci
 6. Scoring for a late joiner: empty holes and a partial total (proposed), or par plus a fixed number for missed holes?
 7. Title on the game card: keep "MINIMAL GOLF" or use the snippet's own name?
 8. `desktop-aim` default: `pull` (literal upstream slingshot) or `target` (click where the ball should go)?
+
+---
+
+## 11. The port as built (TypeScript rules, rung 1)
+
+`ts/` holds the rules on the portkit runtime (copy in `ts/portkit/`, synced from `portkit/ts` without `node_modules` and
+`dist`). Nothing in Unity yet: the kit, the ball graph, the reveal clips, the windmill graph and the relay ops below
+are still to build, and `ts/bindings.json` is **provisional** (written by `ts/tools/provisional-bindings.ts`, marked
+`"provisional"` in the file) until the kit builder exports the real one.
+
+| Command (in `ts/`) | What it does |
+|---|---|
+| `npm test` | type check, the portkit lint, 37 Node tests: 12 golden, 9 rules, 16 fake-room scenarios |
+| `npm run golden` | compiles upstream's own C# with dotnet 8 against `golden/UnityStubs.cs` and writes `vectors/upstream.json` |
+| `npm run levels` | `src/levels.json` from this file's level table (5.3) and slots (5.1); a test fails if they drift apart |
+| `npm run build` | `pk-mini-golf.js` (322 KB) with the MIT header of `script-header.txt` |
+
+### 11.1 Files (translation map as built)
+
+| Upstream | Port | Notes |
+|---|---|---|
+| `MiniGolfLevel.cs` | `src/MiniGolfLevel.ts`, `src/levels.json` | level data, `CourseFrame` (holder pose x table scale), `IsOutsideCourse` |
+| `LevelRevealAnimator.cs` | `src/LevelRevealAnimator.ts` | `TotalDuration`, `IsPlaying`, part offsets; the motion is a baked clip (Unity) |
+| `MinimalGolfGame.cs` | `src/MinimalGolfGame.ts` (the course, referee-written) + `src/GolfPlayer.ts` (per player) | the shot model as `GolfAim`, `CupAssist`, `CapturePath`, `SwapLayout`, messages |
+| `VRGolfClub.cs` | `src/VRGolfClub.ts` | `Update` per hand from poses and trigger events; `DesktopAim` (new) |
+| `VRGolfUI.cs` | `src/VRGolfUI.ts` | G1 to G5 plus the scorecard panel and JOIN / LEAVE |
+| `AudioManager.cs` | `src/AudioManager.ts` | no-repeat choice; music code removed; clip lists empty (no licence) |
+| `CameraImpactShake.cs`, `GolfBallImpact.cs` | `src/CameraImpactShake.ts`, `src/GolfBallImpact.ts` | impacts come from the ball graph |
+| `ProximityRevealVolume.cs`, `RevealVolumeManager.cs` | `src/ProximityRevealVolume.ts`, `src/RevealVolumeManager.ts` | grip gating, `PushGlobals` as the `xray` op, `RevealMask` |
+| `WindmillRotor.cs` | `src/WindmillRotor.ts` | the angle; the blades turn in a graph from the synced clock |
+| (new) | `src/GolfRound.ts` | the scorecard and the end-of-hole rule (pure) |
+| (new) | `src/GolfRelay.ts` | the game's relay ops and graph events (the Unity-side contract, 11.3) |
+| `VRCoursePlacement.cs` | snippet `position` / `rotation` / `scale` and `table-scale` | |
+| `EnvironmentController.cs`, `VREditModePreview.cs`, `CustomGameCursor.cs`, editor scripts | not ported | 10.2 |
+
+### 11.2 Multiplayer design as built
+
+PORT.md 3.4 was followed with these coordinator decisions: every upstream rule and all 8 levels kept; **free putting**
+(no `turns` mode: not built); the hole advances when everyone has holed out or reached the stroke limit; late joiners
+join at the current hole.
+
+**Shared, written by the referee** (`MinimalGolfGame`, one space-state leaf): `round` (server seconds of the round's
+start, so a device's saved player state from another round is never used), `currentLevelIndex` (-1 before the first),
+`slotOf[8]` (the swap layout of `LoadLevel`, K7 kept), `revealStart` (synced-clock seconds), `courseComplete`,
+`holeDoneAt`, `firstHoledAt`, `card` (one row per player: uid, name, slot, `joined` hole, strokes[8], marks[8], left,
+leftAt). Every deadline is a synced-clock time in that leaf, so a new referee carries on where the old one stopped.
+
+**Per player, written by that player** (`GolfPlayer`, per-player and persistent, in their user state): `round`, `hole`,
+`levelStrokes` (upstream's, reset by a restart), `holeStrokes` (all strokes on the hole, what the card records),
+`totalStrokes`, `finished` (0 playing, 1 holed, 2 picked up at the stroke limit, 3 out of time), `capturing`, and two
+counters (`captures`, `shots`) that other clients watch to play the sink and the sounds once. The local copy runs
+upstream's single-player loop for its own ball; other copies only replay what everyone should see and hear.
+
+**The ball** is one of eight pooled kit objects (`ball0`..`ball7`, synced transform, network id
+`pk1/mini-golf/<inst>/ball<k>`), owned by the player seated in that slot (`TakeOwnership` each time the ball is placed).
+The shot impulse is computed in TypeScript from the pull-back and sent as the `impulse` op; the ball's fixed-step graph
+does the cup assist and capture test (`CupAssist` is its reference) and reports `golfCapture`, `golfRest` and
+`golfImpact` through `window.__pk1.event`; only the owner arms its ball's graph (`assist` op), so only the owner reports.
+
+**Flow.**
+- JOIN (board button) sends a command; the referee seats the player in the lowest free slot (`max-players`, default 8).
+  `joined` is the current hole, the next one when the current hole is already decided (the 2.05 s wait), or none left
+  when the course is complete (they play from hole 1 after PLAY AGAIN). Earlier holes show `-` on the card and their
+  total counts only what they played.
+- The reveal starts on every client from `revealStart` (a late joiner joins it part-way); each player's ball is placed at
+  the reset point when it ends (A11).
+- A player's hole ends when the ball graph reports a capture (sink 0.62 s, then `finished = 1` and upstream's message),
+  at the stroke limit (`stroke-limit`, default 0 = none, as upstream: after the last allowed stroke has been at rest for
+  1 s with no capture, `finished = 2`, "STROKE LIMIT  •  PICKED UP"), or at the hole timeout (`hole-timeout`, default
+  120 s after the first player finishes; the referee records the rest with their strokes so far, marked out of time,
+  "OUT OF TIME"). The referee copies each result to the card once.
+- The hole is over when every seated, present player who joined at or before it has a result. The referee then waits
+  upstream's 2.05 s and loads the next level for everyone (`LoadLevel`'s swap); after level 8 the course is complete
+  for everyone. PLAY AGAIN (any seated player) starts a new round: departed rows are dropped, everyone's strokes and
+  totals go to 0, the layout keeps swapping as upstream.
+- A player missing from the instance for 3 s is marked as left: they no longer block the hole and their ball is hidden.
+  Their slot is kept 30 s (the user-state grace); back within it (a reload) they carry on with their strokes (restored
+  from the device) and the ball at the reset point. After it the slot is freed, the row stays on the card as `(name)`.
+  LEAVE frees the slot at once.
+- Restart my hole (RESTART HOLE button, key R): that player's ball back, `levelStrokes` 0, total kept (K2); no reveal
+  replay for anyone; refused while sinking or after finishing (K3 fixed).
+
+**The stroke-limit choice.** The coordinator's brief says the hole advances "when everyone has holed out or reached the
+stroke limit", with PORT.md's proposal to win where they differ. PORT.md proposed the limit off by default (upstream has
+none) and a hole timeout as the guard against a blocked table; that is what is built: `stroke-limit` works as the brief
+says whenever a host sets it, and `hole-timeout` (120 s) keeps a table moving when it is off.
+
+**The scorecard** records `holeStrokes`, so a restarted attempt's strokes stay on the card as they stay in upstream's
+total (K2): the card's total and the player's own total agree.
+
+### 11.3 The Unity-side contract (relay ops and graph events)
+
+Payload format as the portkit README. Ops sent by `src/GolfRelay.ts` (value ops are only sent when they change):
+
+| op | target | args | effect (upstream) |
+|---|---|---|---|
+| `impulse` | ball | x, y, z, shot | `AddForce(v, ForceMode.Impulse)` (MinimalGolfGame.cs:542); start the rest watch for that shot number |
+| `place` | ball | x, y, z, shot | world position, zero velocities, scale 1, dynamic, interpolate, sleep threshold 0.14 (InstantiateBallAtSpawn, J4) |
+| `assist` (value) | ball | `1`, hole x y z, assistRadius, captureRadius, maxAssistedSpeed, maxCaptureSpeed, minPull, maxPull, playableSpeed; or `0` | arm or disarm the fixed-step cup assist and capture test (:351-388) |
+| `sink` | ball | hole x y z, centerDrop, sinkDepth | the capture move (:659-692), 0.10 s + 0.52 s smoothstep, scale 1 -> 0.88 -> 0.08 |
+| `line` (value) | aimLine | `1`, from xyz, to xyz, width, r g b a; or `0` | the aiming LineRenderer (:492-526) |
+| `reveal` | level | seconds in | play the level's baked reveal clip from that time (A8) |
+| `xray` (value) | course | count, then per sphere: cx cy cz radius softness | the reveal shader globals (PushGlobals) |
+| `uiHeight` (value) | pip | height | `RectTransform.sizeDelta.y` (VRGolfUI.cs:194-195) |
+| `fade` (value) | feedbackCanvas | alpha | the toast's opacity (CanvasGroup is not allow-listed) |
+
+Graph to page, `window.__pk1.event("mini-golf:<inst>", name, args)`, bound in bindings to `MinimalGolfGame`:
+
+| name | args | sent by |
+|---|---|---|
+| `golfCapture` | ball index, shot | the ball graph, when armed and the capture test passes |
+| `golfRest` | ball index, shot, `1` at rest / `0` moving | the ball graph: when speed crosses `playableSpeed`, and once after each impulse or place |
+| `golfImpact` | ball index, relative speed, other collider's name | the ball graph's OnCollisionEnter |
+
+Also Unity side: balls ignore each other (`Physics.IgnoreCollision`, 10.1 #2), the windmill graph from
+`BS.SyncedClock.NowSeconds` (`BladeAngle` is its reference), one aim pad (UI layer) per level and a pick sphere per ball
+for desktop clicks.
+
+### 11.4 Checklist status (section 2, 81 items)
+
+T = ported and checked against upstream's own C# (golden vectors). S = ported and checked in Node (unit or fake-room
+test). C = changed (multiplayer or platform), tested. F = upstream bug fixed, tested. U = lives on the Unity side (a
+graph, clip, shader, kit object or physics setting) that is not built yet; the TypeScript sends what it needs.
+L = left out. K = upstream oddity kept on purpose.
+
+| Group | T | S | C | F | U | L | K |
+|---|---|---|---|---|---|---|---|
+| A course and loading | A4 A6 A8 A9 | A1 A2 A3 A5 A11 A12 | A7 | | A10 | | |
+| B aiming and the shot | B1 B3 B4 B5 B6 B7 B8 B9 B10 B11 B12 B14 | B15 | | B13 | B2 | | |
+| C the cup | C2 C3 | | C6 | C5 | C1 C4 | | |
+| D bounds and restarts | D1 | D2 D3 | D4 D5 | D6 | | | |
+| E rotation and the rig | | | E4 | | | E1 E2 E3 | |
+| F x-ray | | F1 F2 | | | F3 F4 F5 F6 | F7 | |
+| G interface | G1 G2 G3 G4 G5 G6 | | | | | | |
+| H sound and haptics | H1 H2 H7 | H4 | H3 H8 | | | H5 H6 | |
+| I scenery | I1 | | | | | I2 I3 I4 | |
+| J physics constants | | | J5 | | J1 J2 J3 J4 | | |
+| K oddities | | | | K1 K3 K4 | | K8 | K2 K5 K6 K7 |
+| **Count (81)** | **29** | **12** | **8** | **6** | **12** | **10** | **4** |
+
+Notes per item where the letter is not the whole story:
+- A3: balls of empty slots and of other levels hidden (scenario); level roots placed at their layout slots by the page.
+  `show-other-levels="false"` hides the non-current levels. A8, C2, C3, I1: the TypeScript reference is checked against
+  upstream; the motion, the assist and the blades run in Unity.
+- A7: the ball is pooled and placed, not destroyed and instantiated (10.1 #3).
+- B2: the hand's green sphere is not drawn yet: a kit object would have to follow the local hand pose from the page.
+- B11, H1, H2: the haptics and the clip choice are checked; the seven sounds are left out (no licence, 6.4) and the
+  clip lists are empty until CC0 replacements are added, so shots and captures are silent for now.
+- C4: the haptic and the `sink` op are tested; the move is `CapturePath`, checked with upstream's numbers; K4 scales them.
+- C6, D4, D5, E4, H3, H8, J5: see 11.2 and 10.1. Haptic durations: 0.08 s, 0.25 s for a capture, 0.06 s per tick for the
+  pull buzz; frequency is dropped.
+- G4: the opacity rule is checked; Unity applies it with the `fade` op.
+- K1 (= C5): "ON PAR!" for a hole in par. K3: no restart while sinking or after finishing. K4: sink distances scaled to
+  the table. B13: a second hand cannot start an aim while one is aiming. D6: PLAY AGAIN is clickable.
+
+### 11.5 Upstream bugs fixed
+
+| # | Bug | Fix | Test |
+|---|---|---|---|
+| K1 / C5 | `strokes <= par` is tested before `== par`, so a hole in par says "UNDER PAR!" and "ON PAR!" is dead code | `<` first | golden: capture |
+| K3 | restarting during the capture or the 2.05 s wait leaves the capture coroutine running on a destroyed ball, and it still advances | restart refused while sinking or finished | scenario: restart my hole |
+| K4 | the capture's 0.055 m drop and 0.32 m sink are world metres from before the 1:20 table: the 1.6 cm ball sinks 32 cm through the base | both times the table scale (0.00275 m, 0.016 m) | golden: capture |
+| B13 | a second hand can start an aim while the first is aiming; whichever lets go first shoots with the other's pull | one aim at a time | golden: club |
+| D6 | PLAY AGAIN has a listener but nothing can click it (no EventSystem) | a clickable board button | scenario: 8 holes |
+
+Matched to upstream on purpose, though they look odd: single-precision results where doubles differ at an edge (the
+power meter shows 54% at 0.545 because Unity multiplies in float; an impact of exactly 0.35 counts). One deliberate
+one-frame difference: upstream keeps `IsPlaying` true for one frame after the reveal's motion has ended; the port ends it
+with the motion (the golden test states the relation).
+
+### 11.6 Tests (evidence)
+
+`npm test`: 37 pass, 0 fail (typecheck and lint clean).
+
+- **Golden (12)**, against `vectors/upstream.json` from the upstream C#: the aim and shot (94 cases: pull to power and
+  direction, the 0.16 m full pull, the 0.001 power floor, the 0.10 m/s gate at begin and release, vertical pulls, the
+  impulse lerp(0.005, 2, p), the line's length and colour), the club per hand (7 scripts: 0.19 m reach, the 0.45
+  trigger threshold, haptics per frame, release with and without a shot, B13), the cup assist and capture (208 cases;
+  48 sitting exactly on a float edge are not compared), the capture path, message and 2.05 s wait, the layout swap over
+  21 loads and restarts, out of bounds on all 8 levels in a moved, turned course (96 points), reveal lengths and part
+  motion, the board (pips, power meter percent and segments, toast opacity, course total), impact haptics and cooldown,
+  300 sound picks draw for draw, windmill angle over 600 steps.
+- **Rules (9)**: levels.json equals PORT.md's table; the 8 levels and pars (32); messages; pull and impulse limits;
+  table-scale; settings; scorecard rules; key budget; bindings marked provisional.
+- **Fake room (16)**: three players play a hole to the end (free putting, B1 while rolling, a ball each owned by its
+  player, the next hole 2.05 s after the last hole-out, card on every client, digests agree); out of bounds and reset
+  (both bounds, no stroke, `place` op, haptics); the stroke limit; the hole timeout; a player leaves mid-hole (not
+  blocking, seat kept 30 s then freed, a new player takes the ball); a reload within the grace; a late joiner (current
+  hole, `-` for earlier holes, joining during the wait starts at the next hole); the referee leaves during the wait (the
+  new referee advances, the old referee's row does not block); two courses in one room (separate seats, balls, ids, state
+  keys and graph events); the scorecard after all 8 holes, course complete, PLAY AGAIN; restart my hole (K2, K3); VR
+  hand, trigger, pull and release; graph events only for the own ball and latest shot; a remote capture's sink; a
+  spectator; desktop target mode, arrow keys, Esc, G for the x-ray, clicking the ball to putt.
+
+### 11.7 Gaps and workarounds
+
+| # | Gap | Workaround here |
+|---|---|---|
+| G1 | portkit: a game cannot send its own relay op (`HostActions` has no entry point; GAPS.md, liars-dice G4) | `src/GolfRelay.ts` calls the RelayHost's two methods TypeScript calls private, so the records travel in the normal batched payloads; delete it when portkit exposes custom ops |
+| G2 | portkit fake room: its stand-in graph notes every game op as "unknown op", which `TestWorld.problems()` reports | `test/helpers.ts` filters exactly this game's op names |
+| G3 | portkit fake room: `BS.KeyCode` lists ten keys, so Return, Escape, C, G and the arrows cannot be pressed in a test | the test helper adds Unity's KeyCode values to the fake client before any key press |
+| G4 | portkit golden: `UdonStubs.cs` covers UdonSharp and VRChat only; this game is plain Unity with Meta XR, TMP and uGUI | `ts/golden/UnityStubs.cs` (Unity maths with real transforms, coroutines stepped by frame, OVRInput, LineRenderer, TMP, uGUI); a candidate for portkit |
+| G5 | no audio volume or pitch from the page (GAPS.md, liars-dice G1) | `sfx-volume` is not applied; the kit's audio sources are to carry upstream's 0.7 |
+| G6 | no way for the page to attach a kit object to the local hand | B2's hand sphere not drawn; the reach rule (0.19 m) still applies |
+| G7 | the page cannot read ball velocities in time | rest and capture come from the ball graph (`golfRest`, `golfCapture`); CanTakeAction trusts the latest shot's report |
+| G8 | bounce threshold is world-wide (J4) | not set; the app's applies |
+| G9 | saved progress is per device (localStorage), not per account | a reload on the same device resumes the hole; on another device the player's own counters start at 0 (the card keeps their finished holes) |
+| G10 | per-player behaviours take no bindings object events | clicks bind to `MinimalGolfGame`, which forwards to the local `GolfPlayer`; aim pads and ball picks are wired in code (`GameObject.On`) |
+| G11 | the whole Unity side (kit builder, ball graph, reveal clips, windmill graph, the nine ops, ball-ball ignore pairs, the shader) | not started (no Unity in this step); `bindings.json` is provisional |
+
+Not verified anywhere yet (rung 2 and later): every risk of 10.3 (physics at 1:20 through synced objects, the body and
+the table, fixed-step graphs calling back, pose rate for aiming, the shader on Quest, ownership hand-over when a player
+leaves: the departed player's ball is hidden and the next seated player takes it with `TakeOwnership` on placement).

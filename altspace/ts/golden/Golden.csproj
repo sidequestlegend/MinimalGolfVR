@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Golden vectors: MinimalGolfVR's own gameplay C# (unchanged), compiled with dotnet 8 against stand-ins for Unity,
+       the Meta XR SDK, TextMesh Pro and uGUI (never in Unity), driven by Harness.cs. `npm run golden` writes
+       ../vectors/upstream.json. Not compiled: editor tooling, the sky, the x-ray manager and the edit-mode preview. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS0108;CS0114;CS0162;CS0168;CS0169;CS0219;CS0414;CS0649;CS8981;CS0067</NoWarn>
+    <BaseIntermediateOutputPath>obj/</BaseIntermediateOutputPath>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="UnityStubs.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/MinimalGolfGame.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/MiniGolfLevel.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/LevelRevealAnimator.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/AudioManager.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/CameraImpactShake.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/GolfBallImpact.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/VRGolfUI.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/VRGolfClub.cs" />
+    <Compile Include="../../../Assets/MinimalGolf/Scripts/WindmillRotor.cs" />
+    <Compile Include="Harness.cs" />
+  </ItemGroup>
+</Project>
