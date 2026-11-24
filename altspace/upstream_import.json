@@ -1,0 +1,24 @@
+{
+  "source": "..",
+  "destination": "Assets/Upstream",
+  "roots": [
+    "Assets/MinimalGolf"
+  ],
+  "script_roots": [
+    "Assets/MinimalGolf/Scripts"
+  ],
+  "skip_suffixes": [
+    ".cs",
+    ".asmdef",
+    ".asmref",
+    ".dll",
+    ".blend",
+    ".blend1",
+    ".mp3",
+    ".wav"
+  ],
+  "copy_files": [
+    "LICENSE"
+  ],
+  "notice": "MinimalGolfVR by Dilmer Valecillos (MIT), https://github.com/dilmerv/MinimalGolfVR; Kenney Minigolf Kit (CC0)"
+}

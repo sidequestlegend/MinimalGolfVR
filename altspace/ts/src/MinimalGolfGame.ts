@@ -291,6 +291,8 @@ export function readSettings(settings: ReadonlyMap<string, string>): GolfSetting
 const ABSENT_SECONDS = 3;
 
 export class MinimalGolfGame extends Behaviour {
+  /** What other clients may ask the referee to run (SendCommand): the board's JOIN / LEAVE and PLAY AGAIN. */
+  static override networkCallable = ["Join", "LeaveSeat", "RestartCourse"];
   static override synced = ["round", "currentLevelIndex", "slotOf", "revealStart", "courseComplete", "holeDoneAt", "firstHoledAt", "card"];
 
   /** Server seconds at which this round (course) started; 0 before the first. A device's saved player state from another round is not used. */
@@ -316,6 +318,8 @@ export class MinimalGolfGame extends Behaviour {
   ballPicks: GameObject[] = [];
   ballAudio: Array<AudioSourceRef | null> = [];
   aimLine!: GameObject;
+  /** B2: the left and right hand's green sphere (attached to the local hands in a headset). */
+  handSpheres: Array<GameObject | null> = [];
   board: GameObject | null = null;
   /** Left out (no licence; PORT.md 6.4): empty until CC0 replacements are chosen. */
   shotClips: AudioClipRef[] = [];
@@ -349,8 +353,6 @@ export class MinimalGolfGame extends Behaviour {
     if (this.course) this.course.transform.localScale = new Vector3(t, t, t);
     const boardAt = (this.Settings.get("board") ?? "").trim().split(/\s+/).map(Number);
     if (this.board && boardAt.length === 3 && boardAt.every((v) => Number.isFinite(v))) this.board.transform.localPosition = new Vector3(boardAt[0], boardAt[1], boardAt[2]);
-    this.aimPads.forEach((pad, level) => pad?.On("click", (detail) => this.LocalPlayer()?.OnAimPadClick(level, detail)));
-    this.ballPicks.forEach((pick, slot) => pick?.On("click", () => this.LocalPlayer()?.OnBallClick(slot)));
   }
 
   override OnInstanceStart(kind: StartKind): void {
@@ -448,20 +450,6 @@ export class MinimalGolfGame extends Behaviour {
   /** PLAY AGAIN (VRGolfUI.cs:145-147; clickable here, D6). */
   PlayAgain(): void {
     if (this.courseComplete) this.SendCommand("RestartCourse");
-  }
-
-  // ---- graph events from the ball graphs (only the ball's owner arms them, so they come from the local ball) ----------
-
-  OnGolfCapture(ball: string, shot: string): void {
-    this.LocalPlayer()?.OnCaptureReported(Number(ball), Number(shot));
-  }
-
-  OnGolfRest(ball: string, shot: string, atRest: string): void {
-    this.LocalPlayer()?.OnRestReported(Number(ball), Number(shot), atRest === "1");
-  }
-
-  OnGolfImpact(ball: string, speed: string, other: string): void {
-    this.LocalPlayer()?.OnImpactReported(Number(ball), Number(speed), other ?? "");
   }
 
   // ---- commands, run by the referee -------------------------------------------------------------------------------

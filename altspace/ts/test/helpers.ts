@@ -9,6 +9,7 @@ import { Vector3 } from "../portkit/src/index.ts";
 import type { FakeClient } from "../portkit/src/platform/fake.ts";
 import { TestWorld, type JoinOptions } from "../portkit/src/testing.ts";
 import type { GolfPlayer } from "../src/GolfPlayer.ts";
+import { GAME_OPS } from "../src/GolfRelay.ts";
 import game from "../src/index.ts";
 import type { MinimalGolfGame } from "../src/MinimalGolfGame.ts";
 import type { VRGolfUI } from "../src/VRGolfUI.ts";
@@ -16,23 +17,17 @@ import type { VRGolfUI } from "../src/VRGolfUI.ts";
 export const SLUG = "mini-golf";
 export const bindings = JSON.parse(readFileSync(fileURLToPath(new URL("../bindings.json", import.meta.url)), "utf8"));
 
-/**
- * Gap (fake room): its BS.KeyCode lists only ten keys. The page maps key codes to Unity KeyCode names from that table,
- * so the desktop keys this game reads are added here, with Unity's values, before any key is pressed.
- */
-const UNITY_KEYS: Record<string, number> = { Return: 13, Escape: 27, C: 99, G: 103, UpArrow: 273, DownArrow: 274, RightArrow: 275, LeftArrow: 276, KeypadEnter: 271 };
-
 export class Golf {
   readonly world: TestWorld;
 
   constructor(seed = 1) {
     this.world = new TestWorld(game, bindings, { seed });
+    // The game's own relay ops (GolfRelay.ts, built by MiniGolfKitBuilder.RelayOps): the fake graph records them.
+    for (const op of GAME_OPS) this.world.room.defineRelayOp(op);
   }
 
   join(name: string, options: JoinOptions = {}): FakeClient {
-    const client = this.world.join({ name, uid: `uid-${name.toLowerCase()}`, ...options });
-    Object.assign((client.app.BS as { KeyCode: Record<string, number> }).KeyCode, UNITY_KEYS);
-    return client;
+    return this.world.join({ name, uid: `uid-${name.toLowerCase()}`, ...options });
   }
 
   run(ms: number): Promise<void> {
@@ -161,8 +156,7 @@ export class Golf {
   }
 
   problems(): string[] {
-    // The game's own relay ops are not known to the fake room's stand-in graph (gap: it notes them as unknown).
-    return this.world.problems().filter((p) => !/graph: unknown op (impulse|place|assist|sink|line|reveal|xray|uiHeight|fade)$/.test(p));
+    return this.world.problems();
   }
 }
 

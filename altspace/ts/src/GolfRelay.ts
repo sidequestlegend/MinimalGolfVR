@@ -1,17 +1,9 @@
 // The game's own relay ops and graph events: what the page asks the kit's graphs to do that it cannot do itself, and
-// what the per-ball fixed-step graph reports back. This file is the contract with the Unity side (PORT.md 11.3).
-//
-// Gap (portkit GAPS.md, "A game cannot send its own relay op from TypeScript"): HostActions has no entry point for
-// a game's op. The runtime's RelayHost queues records through two methods that TypeScript calls private; this
-// reaches them, so the records travel in the same batched, de-duplicated payloads as the built-in ops. Delete this
-// shim once portkit exposes custom ops. On a host without them (the rules bench) the ops go nowhere.
+// what the per-ball fixed-step graph reports back. This file is the contract with the Unity side (PORT.md 11.3; the
+// ops are built by MiniGolfKitBuilder.RelayOps). Records go through the runtime's `Host.op`, batched with the rest of
+// the tick; a value op (with a property) is sent only when it changed.
 
 import { relayNumber, type Color, type HostActions, type Vector3 } from "../portkit/src/index.ts";
-
-interface RelayInternals {
-  value(op: string, target: string, property: string, args: string[]): void;
-  event(op: string, target: string, args: string[]): void;
-}
 
 /** Names the per-ball graph reports through `window.__pk1.event("mini-golf:<inst>", name, args)`. */
 export const GRAPH_EVENTS = {
@@ -36,19 +28,14 @@ export class GolfRelay {
     this.host = host;
   }
 
-  private get internals(): RelayInternals | null {
-    const h = this.host as unknown as Partial<RelayInternals>;
-    return typeof h.value === "function" && typeof h.event === "function" ? (h as RelayInternals) : null;
-  }
-
   /** An op whose latest value is all that matters: an unchanged value is not sent again. */
   private value(op: string, target: string, property: string, args: string[]): void {
-    this.internals?.value(op, target, property, args);
+    this.host.op(op, target, args, property);
   }
 
   /** An op that must run every time it is asked for. */
   private event(op: string, target: string, args: string[]): void {
-    this.internals?.event(op, target, args);
+    this.host.op(op, target, args);
   }
 
   /** `Rigidbody.AddForce(impulse, ForceMode.Impulse)` on the ball (MinimalGolfGame.cs:542); the graph then watches

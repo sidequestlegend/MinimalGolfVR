@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { Hand, Quaternion, Vector3, type HandSide } from "../portkit/src/index.ts";
+import { Hand, Quaternion, UnityRandom, Vector3, type HandSide } from "../portkit/src/index.ts";
 import { ChooseIndex } from "../src/AudioManager.ts";
 import { CameraImpactShake } from "../src/CameraImpactShake.ts";
 import { LevelRevealAnimator } from "../src/LevelRevealAnimator.ts";
@@ -359,10 +359,13 @@ test("golden: impact haptics and their cooldown match CameraImpactShake", () => 
 });
 
 test("golden: sound choice never repeats a clip, draw for draw as AudioManager", () => {
+  // The stubs' Random is Unity's (Xorshift128, seed 7 in the harness): the port's UnityRandom gives the same numbers.
+  const random = new UnityRandom(7);
   let draw = 0;
   const rangeInt = (min: number, max: number) => {
     const d = V.audio.draws[draw++];
     assert.deepEqual([d[0], d[1]], [min, max]);
+    assert.equal(random.RangeInt(min, max), d[2], `draw ${draw}: UnityRandom against Unity's Random.Range`);
     return d[2] as number;
   };
   let shot = -1;

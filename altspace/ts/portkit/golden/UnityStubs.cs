@@ -1,12 +1,13 @@
-// Stand-ins for the parts of Unity, the Meta XR SDK (OVRInput, OVRCameraRig, OVRManager), TextMesh Pro and uGUI that
-// MinimalGolfVR's gameplay code calls, so that its upstream .cs files compile UNCHANGED with dotnet 8 (never in Unity)
-// and its real methods can be driven to make golden vectors (Harness.cs).
+// Stand-ins for the parts of plain Unity (MonoBehaviour with coroutines, transforms with parent chains, Vector3,
+// Quaternion, Mathf, Color, AnimationCurve, Rigidbody, audio, uGUI, TextMesh Pro) that a non-Udon upstream's gameplay
+// code calls, so that its .cs files compile UNCHANGED with dotnet 8 and can be driven to make golden vectors.
 //
-// portkit's golden/UdonStubs.cs covers UdonSharp and VRChat; this game is plain Unity with Meta XR, so it brings its own
-// (listed as a portkit gap in PORT.md). What these are: plain objects with the shape the code expects, float maths in
-// Unity's formulas (Vector3, Quaternion, Mathf, Color, a two-key AnimationCurve), transforms with real parent chains
-// (InverseTransformPoint), coroutines stepped by the harness frame by frame, and every AddForce, vibration and sound
-// written to Golden.Record. What they are not: physics, rendering, input devices or audio.
+// For an upstream that is plain Unity. A VRChat / UdonSharp upstream uses UdonStubs.cs instead: the two both define
+// UnityEngine and are never compiled together. MetaXRStubs.cs adds OVRInput, OVRCameraRig and OVRManager for a Meta XR
+// upstream. Taken from the mini golf port (MinimalGolfVR), where it was written for this; a game extends it in its own
+// golden/ folder rather than editing this copy. What these are: plain objects with the shape the code expects, float
+// maths in Unity's formulas, coroutines stepped by the harness frame by frame (Golden.Runner.Frame), and every AddForce,
+// vibration and sound written to Golden.Record. What they are not: physics, rendering, input devices or audio.
 #pragma warning disable CS0108, CS0114, CS0169, CS0414, CS0649, CS0660, CS0661, CS8618, CS8625, CS8600, CS8602, CS8603, CS8604
 using System;
 using System.Collections;
@@ -411,15 +412,36 @@ namespace UnityEngine
         public static float fixedDeltaTime = 0.02f;
     }
 
+    /// <summary>
+    /// UnityEngine.Random: Xorshift128 seeded as Unity seeds it (as in UdonStubs.cs; outputs checked against Unity 6000.3.21f1).
+    /// Every int draw is also kept in Draws, so a harness can replay it in TypeScript. (The mini golf copy used its own LCG.)
+    /// </summary>
     public static class Random
     {
-        static uint state = 12345;
+        static uint x, y, z, w;
         public static readonly List<int[]> Draws = new List<int[]>();
-        public static void Seed(uint seed) { state = seed; Draws.Clear(); }
+        static Random() { InitState(0); }
+        public static void InitState(int seed)
+        {
+            x = (uint)seed;
+            y = x * 1812433253u + 1u;
+            z = y * 1812433253u + 1u;
+            w = z * 1812433253u + 1u;
+        }
+        /// <summary>InitState and a cleared Draws list.</summary>
+        public static void Seed(uint seed) { InitState((int)seed); Draws.Clear(); }
+        static uint Next()
+        {
+            uint t = x ^ (x << 11);
+            x = y; y = z; z = w;
+            w = w ^ (w >> 19) ^ t ^ (t >> 8);
+            return w;
+        }
+        public static float value => (Next() & 0x7FFFFF) / 8388607f;
+        public static float Range(float min, float max) { float t = value; return min * t + max * (1f - t); }
         public static int Range(int min, int max)
         {
-            state = state * 1664525u + 1013904223u;
-            int result = max <= min ? min : min + (int)((state >> 8) % (uint)(max - min));
+            int result = min == max ? min : min < max ? min + (int)(Next() % (uint)(max - min)) : min - (int)(Next() % (uint)(min - max));
             Draws.Add(new[] { min, max, result });
             return result;
         }
@@ -535,39 +557,4 @@ namespace TMPro
 {
     public class TMP_Text : UnityEngine.UI.Graphic { public string text = ""; }
     public class TextMeshProUGUI : TMP_Text { }
-}
-
-// ---- the Meta XR SDK -----------------------------------------------------------------------------------------------
-public class OVRCameraRig : UnityEngine.MonoBehaviour
-{
-    public UnityEngine.Transform centerEyeAnchor, trackingSpace, leftHandAnchor, rightHandAnchor, leftControllerAnchor, rightControllerAnchor;
-}
-
-public class OVRManager : UnityEngine.MonoBehaviour
-{
-    public enum TrackingOrigin { EyeLevel, FloorLevel, Stage }
-    public TrackingOrigin trackingOriginType;
-}
-
-/// <summary>Controller state the harness sets frame by frame; vibrations go to Golden.Record.</summary>
-public static class OVRInput
-{
-    public enum Controller { None = 0, LTouch = 1, RTouch = 2, Touch = 3 }
-    public enum Button { One, Two, Start, PrimaryIndexTrigger, PrimaryHandTrigger }
-    public enum RawButton { Start }
-    public enum Axis1D { PrimaryIndexTrigger, PrimaryHandTrigger }
-    public enum Axis2D { PrimaryThumbstick }
-
-    public static readonly Dictionary<Controller, float> Trigger = new Dictionary<Controller, float>();
-    public static readonly HashSet<string> Held = new HashSet<string>();
-    public static readonly HashSet<string> Down = new HashSet<string>();
-    public static readonly HashSet<string> Up = new HashSet<string>();
-
-    public static float Get(Axis1D axis, Controller c) => axis == Axis1D.PrimaryIndexTrigger && Trigger.TryGetValue(c, out var v) ? v : 0f;
-    public static UnityEngine.Vector2 Get(Axis2D axis, Controller c) => new UnityEngine.Vector2(0, 0);
-    public static bool Get(Button b, Controller c) => Held.Contains(b + "/" + c);
-    public static bool GetDown(Button b, Controller c) => Down.Contains(b + "/" + c);
-    public static bool GetDown(RawButton b, Controller c) => false;
-    public static bool GetUp(Button b, Controller c) => Up.Contains(b + "/" + c);
-    public static void SetControllerVibration(float frequency, float amplitude, Controller c) { Golden.Record.Note($"Vibrate {c} {frequency:R} {amplitude:R}"); }
 }

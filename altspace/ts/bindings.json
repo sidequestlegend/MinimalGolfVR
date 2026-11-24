@@ -253,6 +253,20 @@
       "click": false,
       "seat": false
     },
+    "handSphereL": {
+      "path": "HandSpheres/Left",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
+    "handSphereR": {
+      "path": "HandSpheres/Right",
+      "sync": "none",
+      "grab": false,
+      "click": false,
+      "seat": false
+    },
     "board": {
       "path": "Board",
       "sync": "none",
@@ -788,6 +802,14 @@
         "aimLine": {
           "$obj": "aimLine"
         },
+        "handSpheres": [
+          {
+            "$obj": "handSphereL"
+          },
+          {
+            "$obj": "handSphereR"
+          }
+        ],
         "board": {
           "$obj": "board"
         },
@@ -978,7 +1000,7 @@
     {
       "object": "restartButton",
       "kind": "click",
-      "behaviour": "b1",
+      "behaviour": "b3",
       "method": "RestartMyHole"
     },
     {
@@ -988,21 +1010,117 @@
       "method": "PlayAgain"
     },
     {
+      "object": "aimPad0",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad1",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad2",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad3",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad4",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad5",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad6",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "aimPad7",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "AimPadClick"
+    },
+    {
+      "object": "ballPick0",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick1",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick2",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick3",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick4",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick5",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick6",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
+      "object": "ballPick7",
+      "kind": "click",
+      "behaviour": "b3",
+      "method": "BallPickClick"
+    },
+    {
       "kind": "graph",
       "name": "golfCapture",
-      "behaviour": "b1",
+      "behaviour": "b3",
       "method": "OnGolfCapture"
     },
     {
       "kind": "graph",
       "name": "golfRest",
-      "behaviour": "b1",
+      "behaviour": "b3",
       "method": "OnGolfRest"
     },
     {
       "kind": "graph",
       "name": "golfImpact",
-      "behaviour": "b1",
+      "behaviour": "b3",
       "method": "OnGolfImpact"
     }
   ]

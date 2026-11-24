@@ -254,9 +254,27 @@ export class GolfPlayer extends Behaviour implements ClubHost {
 
   // ---- the tick -----------------------------------------------------------------------------------------------------
 
+  /** B2: each hand's translucent green sphere, attached to the local player's hands in a headset (not on desktop). */
+  private spheresAttached = false;
+
+  private AttachHandSpheres(): void {
+    if (this.spheresAttached || this.Input.IsVR !== true) return;
+    this.spheresAttached = true;
+    this.game.handSpheres.forEach((sphere, side) => {
+      if (!sphere) return;
+      sphere.SetActive(true);
+      sphere.AttachToHand(side as HandSide);
+    });
+  }
+
+  override OnDestroy(): void {
+    if (this.spheresAttached) for (const sphere of this.game?.handSpheres ?? []) sphere?.Detach();
+  }
+
   override Update(): void {
     if (!this.isLocal || !this.game?.settings) return;
     const game = this.game;
+    this.AttachHandSpheres();
     if (game.round === 0) return;
     const uid = this.Player!.uid;
 
@@ -403,6 +421,48 @@ export class GolfPlayer extends Behaviour implements ClubHost {
     const strength = this.game.impact.RegisterImpact(speed, this.Time.time);
     if (strength !== null) this.HapticBoth(strength, HAPTIC);
     if (ImpactPlaysSound(other)) this.game.audio.PlayCollisionSfx(this.game.ballAudio[this.slot] ?? null);
+  }
+
+  // ---- bound in bindings.json to this per-player behaviour: the runtime hands them to the local player's copy ------------
+
+  /** A click on an aim pad (every level's pad is bound here; only the current level's is switched on). */
+  AimPadClick(detail: HostEventDetail): void {
+    this.OnAimPadClick(this.game.currentLevelIndex, detail);
+  }
+
+  /** A click on a ball's pick sphere: it counts for the own ball when that is the ball nearest the click point. */
+  BallPickClick(detail: HostEventDetail): void {
+    if (this.slot < 0) return;
+    let nearest = this.slot;
+    if (detail.point) {
+      let best = Infinity;
+      this.game.balls.forEach((ball, slot) => {
+        if (!ball) return;
+        const d = ball.transform.position.sub(detail.point!).magnitude;
+        if (d < best) [best, nearest] = [d, slot];
+      });
+    }
+    this.OnBallClick(nearest);
+  }
+
+  /** RESTART HOLE on the board (upstream: left Menu button, :244-260): the course when it is complete, else this hole. */
+  RestartMyHole(): void {
+    this.game.RestartMyHole();
+  }
+
+  /** Graph event golfCapture `<ball>|<shot>` from the ball's fixed-step graph (only the owner arms it). */
+  OnGolfCapture(ball: string, shot: string): void {
+    this.OnCaptureReported(Number(ball), Number(shot));
+  }
+
+  /** Graph event golfRest `<ball>|<shot>|<1 at rest, 0 moving>`. */
+  OnGolfRest(ball: string, shot: string, atRest: string): void {
+    this.OnRestReported(Number(ball), Number(shot), atRest === "1");
+  }
+
+  /** Graph event golfImpact `<ball>|<relative speed>|<other collider's name>`. */
+  OnGolfImpact(ball: string, speed: string, other: string): void {
+    this.OnImpactReported(Number(ball), Number(speed), other ?? "");
   }
 
   OnAimPadClick(level: number, detail: HostEventDetail): void {

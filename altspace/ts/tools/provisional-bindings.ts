@@ -39,6 +39,7 @@ export function provisionalBindings(): Record<string, unknown> {
     picks.push(add(`ballPick${s}`, `Course/Balls/Ball ${s}/Pick`, { click: true }, false));
   }
   add("aimLine", "AimLine");
+  const spheres = [add("handSphereL", "HandSpheres/Left", {}, false), add("handSphereR", "HandSpheres/Right", {}, false)];
   add("board", "Board", {}, false);
   const ui = "Board/VR_UI";
   add("courseText", `${ui}/GamePlayCard/Course`);
@@ -76,6 +77,7 @@ export function provisionalBindings(): Record<string, unknown> {
         ballPicks: picks.map(obj),
         ballAudio: balls.map((b) => ({ $comp: b, kind: "AudioSource" })),
         aimLine: obj("aimLine"),
+        handSpheres: spheres.map(obj),
         board: obj("board"),
         shotClips: [],
         holeClips: [],
@@ -109,11 +111,13 @@ export function provisionalBindings(): Record<string, unknown> {
   ];
   const events = [
     { object: "joinButton", kind: "click", behaviour: "b1", method: "ToggleJoin" },
-    { object: "restartButton", kind: "click", behaviour: "b1", method: "RestartMyHole" },
+    { object: "restartButton", kind: "click", behaviour: "b3", method: "RestartMyHole" },
     { object: "playAgainButton", kind: "click", behaviour: "b1", method: "PlayAgain" },
-    { kind: "graph", name: "golfCapture", behaviour: "b1", method: "OnGolfCapture" },
-    { kind: "graph", name: "golfRest", behaviour: "b1", method: "OnGolfRest" },
-    { kind: "graph", name: "golfImpact", behaviour: "b1", method: "OnGolfImpact" },
+    ...pads.map((pad) => ({ object: pad, kind: "click", behaviour: "b3", method: "AimPadClick" })),
+    ...picks.map((pick) => ({ object: pick, kind: "click", behaviour: "b3", method: "BallPickClick" })),
+    { kind: "graph", name: "golfCapture", behaviour: "b3", method: "OnGolfCapture" },
+    { kind: "graph", name: "golfRest", behaviour: "b3", method: "OnGolfRest" },
+    { kind: "graph", name: "golfImpact", behaviour: "b3", method: "OnGolfImpact" },
   ];
   return {
     schema: 1,

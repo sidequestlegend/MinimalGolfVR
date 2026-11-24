@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Golden vectors: MinimalGolfVR's own gameplay C# (unchanged), compiled with dotnet 8 against stand-ins for Unity,
-       the Meta XR SDK, TextMesh Pro and uGUI (never in Unity), driven by Harness.cs. `npm run golden` writes
+       the Meta XR SDK, TextMesh Pro and uGUI (portkit's golden/UnityStubs.cs and MetaXRStubs.cs; never in Unity), driven by Harness.cs. `npm run golden` writes
        ../vectors/upstream.json. Not compiled: editor tooling, the sky, the x-ray manager and the edit-mode preview. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,7 +14,8 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="UnityStubs.cs" />
+    <Compile Include="../portkit/golden/UnityStubs.cs" />
+    <Compile Include="../portkit/golden/MetaXRStubs.cs" />
     <Compile Include="../../../Assets/MinimalGolf/Scripts/MinimalGolfGame.cs" />
     <Compile Include="../../../Assets/MinimalGolf/Scripts/MiniGolfLevel.cs" />
     <Compile Include="../../../Assets/MinimalGolf/Scripts/LevelRevealAnimator.cs" />

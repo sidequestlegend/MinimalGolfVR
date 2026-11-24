@@ -449,3 +449,17 @@ test("desktop: target mode, arrow keys turn and strengthen the aim, Esc cancels,
   near(Number(g.impulses(ann).at(-1)!.args[0]), 0.005 + (2 - 0.005) * (0.03 / 0.16), 1e-6, "impulse toward +x");
   assert.deepEqual(g.problems(), []);
 });
+
+test("B2: in a headset each hand carries its green sphere (AttachToHand); on desktop nothing is attached", async () => {
+  const g = new Golf(3);
+  const ann = g.join("Ann");
+  ann.vr = true;
+  const bob = g.join("Bob");
+  await g.world.settle();
+  await g.run(500);
+  const attached = [...ann.attached.entries()].map(([path, a]) => `${path.replace(/^.*?\(Clone\)\//, "")}:${a.point}:${a.uid === ann.uid}`).sort();
+  const paths = ["handSphereL", "handSphereR"].map((k) => g.world.bindings.objects[k]!.path);
+  assert.deepEqual(attached, [`${paths[0]}:1:true`, `${paths[1]}:2:true`], "left sphere on the left hand, right on the right");
+  assert.equal(bob.attached.size, 0, "a desktop player attaches nothing");
+  assert.deepEqual(g.problems(), []);
+});
