@@ -1,6 +1,7 @@
 # mini-golf: test evidence
 
-Everything here ran on 2026-11-24 on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
+Everything here ran on 2026-11-24 and again on 2026-11-25 (after the re-sync to portkit 812f285 and the review
+fixes, PORT.md 11.8) on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
 in the Altspace app, on a Quest, or with controllers (rung 5: not run; worlds stay Private).
 
 How to run each rung again:
@@ -13,8 +14,7 @@ portkit/tools/remote.sh altspace menu "PortKit/Kit/Build Bundles" 900
 portkit/tools/remote.sh altspace menu "PortKit/Kit/Check"                    rung 2 (Logs/portkit_check.txt)
 portkit/tools/playtest.sh altspace altspace/playtest/single.json mini-golf    rung 3 (includes the tunnelling pass)
 portkit/tools/playtest.sh altspace altspace/playtest/tunnel.json mini-golf    the tunnelling pass alone
-portkit/tools/remote.sh altspace menu "PortKit/Multiplayer/Activate Player 2"
-portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     rung 4
+portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     rung 4 (activates Player 2 itself)
 ```
 
 ## Rung 0: static
@@ -23,8 +23,12 @@ portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     ru
 
 ## Rung 1: Node (no Unity)
 
-`npm test` in `altspace/ts`: **38 tests, 38 pass, 0 fail**, on the kit builder's real `bindings.json` (hash
-`8695da876f8b99001855d4b03dd802c00d237fc3`) and the re-synced portkit runtime.
+`npm test` in `altspace/ts`: **49 tests, 49 pass, 0 fail**, on the kit builder's real `bindings.json` (hash
+`89c115ae664cb468cacde5366397235cf84ea1fd`: the three ball-graph events are now bindings) and the portkit runtime at
+812f285.
+
+- **Review findings (11)**, `test/fixes.test.ts`: one or more per finding (PORT.md 11.8). Each was run against the code
+  before its fix and failed there (11 of 11, and the old "hole timeout" scenario, which had locked in a score of 1).
 
 - **Golden (12)**: `golden/Golden.csproj` compiles MinimalGolfVR's own gameplay C# unchanged with dotnet 8 against
   portkit's `golden/UnityStubs.cs` and `golden/MetaXRStubs.cs` (the game's own stub copy is gone). `npm run golden`
@@ -35,7 +39,8 @@ portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     ru
 - **Rules (9)**: `levels.json` equals PORT.md 5.3 (all eight levels now read back from the imported scene, none
   provisional; level 7's hole (-3.055, 0.11, 1.463)); the bindings are the kit builder's, with b1 MinimalGolfGame,
   b2 VRGolfUI, b3 GolfPlayer and every object key the rules use.
-- **Fake room (17)**: as PORT.md 11.6, now with the nine relay ops declared through `room.defineRelayOp`, clicks on aim
+- **Fake room (17)**: as PORT.md 11.6 (the hole timeout now expects par + 2; the hand-sphere test leaves out the
+  runtime's own throwaway head probe, `localPosition()`), now with the nine relay ops declared through `room.defineRelayOp`, clicks on aim
   pads, ball picks and RESTART HOLE bound to the per-player `GolfPlayer` (the runtime hands them to the local copy), and
   a new scenario: in a headset each hand carries its green sphere (`AttachToHand`, left sphere on point 1, right on 2);
   on desktop nothing is attached.
@@ -44,15 +49,17 @@ portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     ru
 
 ```
 PASS graphs: the SDK's check found 0 nodes the app will not run
-PASS mini-golf bindings: 83 objects resolve by path; hash matches (8695da876f8b99001855d4b03dd802c00d237fc3)
-PASS mini-golf android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 217/1661, behaviours 199, scripts 10, calls 0, animation events 0, graph blobs 32 (605 KiB) ...
+PASS mini-golf bindings: 83 objects resolve by path; hash matches (89c115ae664cb468cacde5366397235cf84ea1fd)
+PASS mini-golf android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 217/1662, behaviours 199, scripts 10, calls 0, animation events 0, graph blobs 32 (630 KiB) ...
 PASS mini-golf windows bundle: PASS Kind=Pass Reasons=[] Reports=[] ...
 DONE
 ```
 
-Graph members: relay 73, ball 25, windmill 3, all on the SDK allow list of 29,061 (`GraphWriter.Save`). Kit: 377
-objects, 83 bound (8 synced, 19 clickable), 61 refs, 3 behaviours, 19 events. Bundles: Android 1,214 KiB, Windows
-1,301 KiB, each with the third-party notices inside; textures: Kenney's 512 px colormap and the two font atlases.
+Graph members: all on the SDK allow list (`GraphWriter.Save`). Kit: 377 objects, 83 bound (8 synced, 19 clickable),
+61 refs, 3 behaviours, 22 events (19 clicks, 3 graph events). Bundles: Android 1,217 KiB, Windows 1,316 KiB (1,214 and
+1,301 before the re-sync), each with the third-party notices and six licence texts inside (`Logs/portkit_bundles.txt`:
+"licence texts: CC0-1.0-legalcode.txt, Kenney-MinigolfKit-License.txt, MinimalGolfVR-LICENSE.txt, SpaceMono-OFL.txt,
+portkit-LICENSE.txt, LiberationSans - OFL.txt"); textures: Kenney's 512 px colormap and the two font atlases.
 
 Artifacts (`PortKit/Kit/Export Artifacts`, `altspace/dist/`, not committed): `android/mini-golf`, `windows/mini-golf`,
 `pk-mini-golf.js` (MIT header), `mini-golf.jpg`, `mini-golf.snippet.html` (`position="0 1 0"` and the nine settings),
@@ -107,9 +114,12 @@ back, left and right from each hole's reset point, the ball followed in level un
 **Things to know.**
 - The one console error line in every run is the editor's own search indexer at Play start
   (`UnityEditor.Search.SearchDatabase ... IndexationOnStartup`), not the kit.
-- Space state outlives a Play session in the local relay: a run that starts where an earlier one left a seat finds the
-  player seated; the test then does not click JOIN (it would leave). The referee starts a new round when nobody from
-  the old one is present, so each run starts on hole 1.
+- Space state outlives a Play session in the local relay; `playtest.sh` now empties the saved room before each run
+  (portkit d8f370d), so the driver always clicks JOIN (its handling of leftover seats is gone).
+- A modal "Packages with Errors" dialog (Unity's own, "This project contains one or more packages with errors") stopped
+  the editor's update loop, and with it the file remote, during the first 2026-11-25 run; it was dismissed
+  (`unity_dialogs.ps1 -Press 2`, "Dismiss") and the run started again. `playtest.sh` then read the previous run's arm log
+  as a success (kit gap, see the report).
 - **Desktop `pull` aiming and the ball's own pick**: a weak putt is a click about a centimetre behind the ball. The ball
   carries a pick sphere (click it to putt while aiming); at first it was 1.1 cm in radius and swallowed those clicks, so
   it is now the size of the ball. A putt toward the player still means clicking just beyond the ball, which the ball

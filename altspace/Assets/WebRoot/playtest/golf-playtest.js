@@ -216,9 +216,17 @@
       await clickObject("restartButton", "RESTART HOLE");
       const restarted = await until(() => me().feedback === "LEVEL RESTARTED", 4000, 50);
       await ready(5000);
-      const back = debug().ballWorld(slot);
-      check(!!restarted && me().levelStrokes === 0 && me().holeStrokes === 1 && Math.hypot(back[0] - spawn[0], back[2] - spawn[2]) < 0.01,
-        "RESTART HOLE (board button): ball back at the reset point, level strokes 0, the hole keeps its stroke (K2)", `level ${me().levelStrokes}, hole ${me().holeStrokes}, ball ${fmt(back)}`);
+      // read Unity, polling: the relay's place op lands a frame or more after the page asked for it
+      let back = null;
+      for (let i = 0; i < 30; i++) {
+        back = P(await probe("pos", ballPath));
+        if (Math.hypot(back[0] - spawn[0], back[2] - spawn[2]) < 0.01) break;
+        await sleep(100);
+      }
+      await sleep(500);
+      const page = debug().ballWorld(slot);
+      check(!!restarted && me().levelStrokes === 0 && me().holeStrokes === 1 && Math.hypot(back[0] - spawn[0], back[2] - spawn[2]) < 0.01 && Math.hypot(page[0] - spawn[0], page[2] - spawn[2]) < 0.01,
+        "RESTART HOLE (board button): ball back at the reset point (Unity and the page), level strokes 0, the hole keeps its stroke (K2)", `level ${me().levelStrokes}, hole ${me().holeStrokes}, ball ${fmt(back)}, page ${fmt(page)}`);
     }
     const holed = await playToCup(8, 0.03);
     const strokes = me().levelStrokes;
@@ -243,7 +251,12 @@
     check(!!next && name2 === "THE GARDEN" && level2 === "LEVEL 2 / 8", "the next level loads 2.05 s later (THE GARDEN)", `${name2}, ${level2}`);
     const placed2 = await ready(20000);
     const spawn2 = debug().spawnWorld();
-    const pos2 = P(await probe("pos", ballPath));
+    // poll Unity: the place op lands a frame or more after the page has placed the ball (README "Probes run ahead")
+    let pos2 = P(await probe("pos", ballPath));
+    for (let i = 0; i < 30 && Math.hypot(pos2[0] - spawn2[0], pos2[2] - spawn2[2]) >= 0.01; i++) {
+      await sleep(100);
+      pos2 = P(await probe("pos", ballPath));
+    }
     check(!!placed2 && Math.hypot(pos2[0] - spawn2[0], pos2[2] - spawn2[2]) < 0.01 && me().levelStrokes === 0, "on hole 2 the ball is back at its reset point, level strokes 0, total kept", `ball ${fmt(pos2)}, total ${me().totalStrokes}`);
     await cmd("shot hole2 0 " + (spawn2[1] + 0.5) + " " + (spawn2[2] - 0.4) + " 0 " + spawn2[1] + " " + (spawn2[2] + 0.3) + " 60");
 
@@ -252,7 +265,11 @@
     debug().moveBall(spawn2[0], spawn2[1] - 0.2, spawn2[2]);
     const returned = await until(() => me().feedback === "BALL RETURNED", 4000, 50);
     await ready(5000);
-    const pos3 = P(await probe("pos", ballPath));
+    let pos3 = P(await probe("pos", ballPath));
+    for (let i = 0; i < 30 && (Math.hypot(pos3[0] - spawn2[0], pos3[2] - spawn2[2]) >= 0.01 || Math.abs(pos3[1] - spawn2[1]) >= 0.01); i++) {
+      await sleep(100);
+      pos3 = P(await probe("pos", ballPath));
+    }
     check(!!returned && me().levelStrokes === before && Math.hypot(pos3[0] - spawn2[0], pos3[2] - spawn2[2]) < 0.01 && Math.abs(pos3[1] - spawn2[1]) < 0.01,
       "out of bounds resets the ball to the reset point, BALL RETURNED, no stroke (D1, D2)", `ball ${fmt(pos3)}, strokes ${before} -> ${me().levelStrokes}`);
 
