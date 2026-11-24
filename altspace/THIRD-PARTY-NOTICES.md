@@ -51,6 +51,10 @@ music is left out; the effects are replaced with these CC0 files by Kenney, down
 
 - Liberation Sans (TextMesh Pro's LiberationSans SDF, from the project's TextMesh Pro essentials): SIL Open Font
   License 1.1. Inter, assigned upstream but never drawn, is not shipped.
+- Space Mono Regular (the scorecard's monospaced lines; `Assets/Kit/Fonts/SpaceMono-Regular.ttf`, made into a static
+  TextMesh Pro asset): Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono), designed
+  by Colophon Foundry. SIL Open Font License 1.1 (`Assets/Kit/Fonts/SpaceMono-OFL.txt`). Downloaded on 2026-11-24 from
+  Google Fonts' repository, https://github.com/google/fonts/tree/main/ofl/spacemono (METADATA.pb: license "OFL").
 
 ## portkit
 

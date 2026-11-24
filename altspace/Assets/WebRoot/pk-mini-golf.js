@@ -7207,6 +7207,7 @@ ${label}`)));
   }
 
   // src/index.ts
+  var xyz = (v) => [v.x, v.y, v.z];
   var game = {
     slug: "mini-golf",
     behaviours: { MinimalGolfGame, VRGolfUI, GolfPlayer },
@@ -7216,7 +7217,39 @@ ${label}`)));
       return {
         hole: () => golf().currentLevelIndex,
         card: () => ScorecardLines(golf().card, golf().currentLevelIndex).join("\n"),
-        layout: () => golf().slotOf.slice()
+        layout: () => golf().slotOf.slice(),
+        // for the Play-mode tests (playtest/golf-playtest.js)
+        pathOf: (key) => instance.bindings.objects[key]?.path ?? "",
+        revealing: () => golf().IsRevealing(),
+        courseComplete: () => golf().courseComplete,
+        holeWorld: () => golf().CurrentLevel ? xyz(golf().HoleWorld()) : null,
+        spawnWorld: () => golf().CurrentLevel ? xyz(golf().SpawnWorld()) : null,
+        ballWorld: (slot) => golf().balls[slot] ? xyz(golf().balls[slot].transform.position) : null,
+        me: () => {
+          const p = golf().LocalPlayer();
+          if (!p) return null;
+          return {
+            slot: p.slot,
+            hole: p.hole,
+            levelStrokes: p.levelStrokes,
+            holeStrokes: p.holeStrokes,
+            totalStrokes: p.totalStrokes,
+            finished: p.finished,
+            capturing: p.capturing,
+            ballLive: p.ballLive,
+            canAct: p.CanTakeAction(),
+            aiming: p.aiming,
+            shotPower: p.shotPower,
+            shotNumber: p.shotNumber,
+            restShot: p.restShot,
+            atRest: p.atRest,
+            feedback: p.feedback,
+            feedbackLeft: p.feedbackUntil - p.Time.time,
+            captures: p.captures
+          };
+        },
+        seat: (uid) => golf().SlotOf(uid),
+        result: (uid, hole) => golf().ResultFor(uid, hole)
       };
     }
   };
