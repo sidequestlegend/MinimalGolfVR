@@ -40,6 +40,7 @@ const game: GameDefinition = {
         return level ? xyz(level.InverseTransformPoint(new Vector3(x, y, z), golf().frame, golf().LevelPosition(level.index))) : null;
       },
       myUid: () => golf().Networking.LocalPlayer.uid,
+      mySid: () => golf().Networking.LocalPlayer.sid,
       rows: () => golf().card.map((r) => ({ uid: r.uid, name: r.name, slot: r.slot, strokes: r.strokes.slice(), left: r.left })),
       seat: (uid: string) => golf().SlotOf(uid),
       // test levers (Play mode only): put the own ball somewhere (as physics or a hand could), and, on the referee, load a level

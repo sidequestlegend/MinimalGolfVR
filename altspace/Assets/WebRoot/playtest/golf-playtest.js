@@ -361,8 +361,7 @@
     await sleep(2000);
     const back = reloaded();
     const mine = debug().myUid();
-    const others = debug().players().filter((p) => p.id !== mine);
-    const first = back ? false : debug().players().map((p) => p.sid).sort()[0] === debug().players().find((p) => p.id === mine).sid;
+    const first = back ? false : debug().players().map((p) => p.sid).sort()[0] === debug().mySid();
     const who = first ? "A" : "B";
     if (back) {
       // after the reload: the same hole, the same seat, the same digest as the other page

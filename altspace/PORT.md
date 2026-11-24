@@ -797,14 +797,13 @@ Local Multiplayer is desktop only, so trigger, grip, pose and haptics are exerci
 ## 11. The port as built (TypeScript rules, rung 1)
 
 `ts/` holds the rules on the portkit runtime (copy in `ts/portkit/`, synced from `portkit/ts` without `node_modules` and
-`dist`). Nothing in Unity yet: the kit, the ball graph, the reveal clips, the windmill graph and the relay ops below
-are still to build, and `ts/bindings.json` is **provisional** (written by `ts/tools/provisional-bindings.ts`, marked
-`"provisional"` in the file) until the kit builder exports the real one.
+`dist`). `ts/bindings.json` is written by the kit builder (section 12); the kit, the ball graph, the reveal clips, the
+windmill graph and the relay ops below are built there.
 
 | Command (in `ts/`) | What it does |
 |---|---|
-| `npm test` | type check, the portkit lint, 37 Node tests: 12 golden, 9 rules, 16 fake-room scenarios |
-| `npm run golden` | compiles upstream's own C# with dotnet 8 against `golden/UnityStubs.cs` and writes `vectors/upstream.json` |
+| `npm test` | type check, the portkit lint, 38 Node tests: 12 golden, 9 rules, 17 fake-room scenarios |
+| `npm run golden` | compiles upstream's own C# with dotnet 8 against portkit's `golden/UnityStubs.cs` and `MetaXRStubs.cs` and writes `vectors/upstream.json` |
 | `npm run levels` | `src/levels.json` from this file's level table (5.3) and slots (5.1); a test fails if they drift apart |
 | `npm run build` | `pk-mini-golf.js` (322 KB) with the MIT header of `script-header.txt` |
 
@@ -897,7 +896,7 @@ Payload format as the portkit README. Ops sent by `src/GolfRelay.ts` (value ops 
 | `uiHeight` (value) | pip | height | `RectTransform.sizeDelta.y` (VRGolfUI.cs:194-195) |
 | `fade` (value) | feedbackCanvas | alpha | the toast's opacity (CanvasGroup is not allow-listed) |
 
-Graph to page, `window.__pk1.event("mini-golf:<inst>", name, args)`, bound in bindings to `MinimalGolfGame`:
+Graph to page, `window.__pk1.event("mini-golf:<inst>", name, args)`, registered by `GolfPlayer.Start` (`RegisterGraphEvent`; the C# bindings writer has no graph-event entry, G12) and acted on by the local player's copy:
 
 | name | args | sent by |
 |---|---|---|
@@ -977,7 +976,7 @@ with the motion (the golden test states the relation).
 
 ### 11.6 Tests (evidence)
 
-`npm test`: 37 pass, 0 fail (typecheck and lint clean).
+`npm test`: 38 pass, 0 fail (typecheck and lint clean); TESTS.md has the current evidence for every rung.
 
 - **Golden (12)**, against `vectors/upstream.json` from the upstream C#: the aim and shot (94 cases: pull to power and
   direction, the 0.16 m full pull, the 0.001 power floor, the 0.10 m/s gate at begin and release, vertical pulls, the
@@ -988,7 +987,7 @@ with the motion (the golden test states the relation).
   motion, the board (pips, power meter percent and segments, toast opacity, course total), impact haptics and cooldown,
   300 sound picks draw for draw, windmill angle over 600 steps.
 - **Rules (9)**: levels.json equals PORT.md's table; the 8 levels and pars (32); messages; pull and impulse limits;
-  table-scale; settings; scorecard rules; key budget; bindings marked provisional.
+  table-scale; settings; scorecard rules; key budget; the kit builder's bindings with the keys and ids the rules use.
 - **Fake room (16)**: three players play a hole to the end (free putting, B1 while rolling, a ball each owned by its
   player, the next hole 2.05 s after the last hole-out, card on every client, digests agree); out of bounds and reset
   (both bounds, no stroke, `place` op, haptics); the stroke limit; the hole timeout; a player leaves mid-hole (not

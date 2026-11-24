@@ -3,7 +3,7 @@
   "timeout": 600,
   "players": 2,
   "elements": [
-    "<script>window.__golfPlan = \"single\";</script>",
+    "<script>window.__golfPlan = \"multi\";</script>",
     "<script src=\"{SERVER}/web/playtest/golf-playtest.js\"></script>",
     "<bs-snippet name=\"mini-golf\" title=\"Mini Golf\" script=\"{SERVER}/web/pk-mini-golf.js\" position=\"0 0.7 0.55\" rotation=\"0 0 0\" windows=\"{SERVER}/kits/windows/mini-golf\" android=\"{SERVER}/kits/android/mini-golf\"></bs-snippet>"
   ]
