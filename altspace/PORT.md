@@ -2,7 +2,7 @@
 
 Read-only analysis of the upstream clone at `C:\workspace\AltspaceGames\mini-golf`. Nothing was built, compiled, run or opened in Unity. Scene and prefab facts were read from the YAML text with a small parser, matching scripts by the GUIDs in their `.meta` files.
 
-**Status (2026-11-24):** the rules are ported to TypeScript in `ts/` and tested in Node (rung 1: golden vectors from the upstream C# and fake-room scenarios). Section 11 records what was built, the checklist status, the decisions and the gaps; sections 1 to 10 are the analysis it was built from. No Unity work has been done yet (kit, graphs, bundles).
+**Status (2026-11-24):** the rules are ported to TypeScript in `ts/` and tested in Node (rung 1), and the Unity side is built and checked in the editor: the kit, its graphs and bundles pass `PortKit/Kit/Check` (rung 2), and Play-mode tests pass with one player (rung 3) and two Local Multiplayer players (rung 4). Section 11 records the TypeScript port, the checklist status, the decisions and the gaps; section 12 the Unity side; `TESTS.md` the evidence; sections 1 to 10 are the analysis it was built from. Nothing has run in the Altspace app or on a Quest.
 
 Reference conventions used below:
 
@@ -912,37 +912,51 @@ for desktop clicks.
 ### 11.4 Checklist status (section 2, 81 items)
 
 T = ported and checked against upstream's own C# (golden vectors). S = ported and checked in Node (unit or fake-room
-test). C = changed (multiplayer or platform), tested. F = upstream bug fixed, tested. U = lives on the Unity side (a
-graph, clip, shader, kit object or physics setting) that is not built yet; the TypeScript sends what it needs.
-L = left out. K = upstream oddity kept on purpose.
+test). C = changed (multiplayer or platform), tested. F = upstream bug fixed, tested. P = lives on the Unity side (a
+graph, clip, shader, kit object or physics setting), built and checked in editor Play mode (TESTS.md). B = built on the
+Unity side, not exercised in Play mode (desktop Play mode has no hands, grips or headset). L = left out. K = upstream
+oddity kept on purpose.
 
-| Group | T | S | C | F | U | L | K |
-|---|---|---|---|---|---|---|---|
-| A course and loading | A4 A6 A8 A9 | A1 A2 A3 A5 A11 A12 | A7 | | A10 | | |
-| B aiming and the shot | B1 B3 B4 B5 B6 B7 B8 B9 B10 B11 B12 B14 | B15 | | B13 | B2 | | |
-| C the cup | C2 C3 | | C6 | C5 | C1 C4 | | |
-| D bounds and restarts | D1 | D2 D3 | D4 D5 | D6 | | | |
-| E rotation and the rig | | | E4 | | | E1 E2 E3 | |
-| F x-ray | | F1 F2 | | | F3 F4 F5 F6 | F7 | |
-| G interface | G1 G2 G3 G4 G5 G6 | | | | | | |
-| H sound and haptics | H1 H2 H7 | H4 | H3 H8 | | | H5 H6 | |
-| I scenery | I1 | | | | | I2 I3 I4 | |
-| J physics constants | | | J5 | | J1 J2 J3 J4 | | |
-| K oddities | | | | K1 K3 K4 | | K8 | K2 K5 K6 K7 |
-| **Count (81)** | **29** | **12** | **8** | **6** | **12** | **10** | **4** |
+| Group | T | S | C | F | P | B | L | K |
+|---|---|---|---|---|---|---|---|---|
+| A course and loading | A4 A6 A8 A9 | A1 A2 A3 A5 A11 A12 | A7 | | | A10 | | |
+| B aiming and the shot | B1 B3 B4 B5 B6 B7 B8 B9 B10 B11 B12 B14 | B15 | | B13 | | B2 | | |
+| C the cup | C2 C3 | | C6 | C5 | C1 C4 | | | |
+| D bounds and restarts | D1 | D2 D3 | D4 D5 | D6 | | | | |
+| E rotation and the rig | | | E4 | | | | E1 E2 E3 | |
+| F x-ray | | F1 F2 | | | | F3 F4 F5 F6 | F7 | |
+| G interface | G1 G2 G3 G4 G5 G6 | | | | | | | |
+| H sound and haptics | H1 H2 H7 | H4 | H3 H8 | | | | H5 H6 | |
+| I scenery | I1 | | | | | | I2 I3 I4 | |
+| J physics constants | | | J4 J5 | | J1 J2 J3 | | | |
+| K oddities | | | | K1 K3 K4 | | | K8 | K2 K5 K6 K7 |
+| **Count (81)** | **29** | **12** | **9** | **6** | **5** | **6** | **10** | **4** |
 
 Notes per item where the letter is not the whole story:
-- A3: balls of empty slots and of other levels hidden (scenario); level roots placed at their layout slots by the page.
-  `show-other-levels="false"` hides the non-current levels. A8, C2, C3, I1: the TypeScript reference is checked against
-  upstream; the motion, the assist and the blades run in Unity.
+- A3: balls of empty slots and of other levels hidden (scenario, and in Play mode: 8 of 8 hidden before anyone sits);
+  level roots placed at their layout slots by the page. `show-other-levels="false"` hides the non-current levels. A8, C2,
+  C3, I1: the TypeScript reference is checked against upstream; the motion (baked clip), the cup pull and capture (ball
+  graph) and the blades (windmill graph) run in Unity. In Play mode the reveal ran before every ball placement and the
+  ball graph's pull and capture holed hole 1; the windmill's angle was not read back.
 - A7: the ball is pooled and placed, not destroyed and instantiated (10.1 #3).
-- B2: the hand's green sphere is not drawn yet: a kit object would have to follow the local hand pose from the page.
-- B11, H1, H2: the haptics and the clip choice are checked; the seven sounds are left out (no licence, 6.4) and the
-  clip lists are empty until CC0 replacements are added, so shots and captures are silent for now.
-- C4: the haptic and the `sink` op are tested; the move is `CapturePath`, checked with upstream's numbers; K4 scales them.
+- A10: the clip runs in the physics step (`Animator` update mode Fixed) so the colliders move with the parts, but not on
+  unscaled time (the app's time scale is 1); not probed part by part.
+- B2: the hand spheres are kit objects attached with `GameObject.AttachToHand` in a headset only (scenario test); not run
+  in Play mode (desktop) or the app.
+- B11, H1, H2: the haptics and the clip choice are checked; the sounds are CC0 replacements by Kenney (12.4), played
+  through each ball's own 3D source by the relay `audio` op. Nobody listened to them in Play mode.
+- C4: the haptic and the `sink` op are tested in Node; in Play mode the captured ball ends at scale 0.08 below the cup
+  (rung 3). K4 scales the sink to the table.
 - C6, D4, D5, E4, H3, H8, J5: see 11.2 and 10.1. Haptic durations: 0.08 s, 0.25 s for a capture, 0.06 s per tick for the
   pull buzz; frequency is dropped.
-- G4: the opacity rule is checked; Unity applies it with the `fade` op.
+- F3 to F6: the kit's toon shader clips the seven occluders inside the spheres the `xray` op puts in its globals, and
+  draws them double-sided always (upstream switches culling only while a volume is on; on closed meshes the look is the
+  same). Not exercised in Play mode (no grip; the desktop G key was not driven).
+- G4: the opacity rule is checked; Unity applies it with the `fade` op (`Graphic.CrossFadeAlpha`).
+- J1 to J3: the ball prefab (mass, damping, interpolation, continuous collision) and all course colliders with
+  upstream's physics material are copied unchanged; 32 full-power shots, four on each hole, never passed through a rail
+  (12.5). J4: the sleep threshold 0.14 is set per ball by the `place` op; the bounce threshold (1 upstream) is world-wide
+  and cannot be set by a snippet, so the host world's applies (the editor project's default is 2).
 - K1 (= C5): "ON PAR!" for a hole in par. K3: no restart while sinking or after finishing. K4: sink distances scaled to
   the table. B13: a second hand cannot start an aim while one is aiming. D6: PLAY AGAIN is clickable.
 
@@ -987,20 +1001,125 @@ with the motion (the golden test states the relation).
 
 ### 11.7 Gaps and workarounds
 
-| # | Gap | Workaround here |
+| # | Gap | Now |
 |---|---|---|
-| G1 | portkit: a game cannot send its own relay op (`HostActions` has no entry point; GAPS.md, liars-dice G4) | `src/GolfRelay.ts` calls the RelayHost's two methods TypeScript calls private, so the records travel in the normal batched payloads; delete it when portkit exposes custom ops |
-| G2 | portkit fake room: its stand-in graph notes every game op as "unknown op", which `TestWorld.problems()` reports | `test/helpers.ts` filters exactly this game's op names |
-| G3 | portkit fake room: `BS.KeyCode` lists ten keys, so Return, Escape, C, G and the arrows cannot be pressed in a test | the test helper adds Unity's KeyCode values to the fake client before any key press |
-| G4 | portkit golden: `UdonStubs.cs` covers UdonSharp and VRChat only; this game is plain Unity with Meta XR, TMP and uGUI | `ts/golden/UnityStubs.cs` (Unity maths with real transforms, coroutines stepped by frame, OVRInput, LineRenderer, TMP, uGUI); a candidate for portkit |
-| G5 | no audio volume or pitch from the page (GAPS.md, liars-dice G1) | `sfx-volume` is not applied; the kit's audio sources are to carry upstream's 0.7 |
-| G6 | no way for the page to attach a kit object to the local hand | B2's hand sphere not drawn; the reach rule (0.19 m) still applies |
-| G7 | the page cannot read ball velocities in time | rest and capture come from the ball graph (`golfRest`, `golfCapture`); CanTakeAction trusts the latest shot's report |
-| G8 | bounce threshold is world-wide (J4) | not set; the app's applies |
-| G9 | saved progress is per device (localStorage), not per account | a reload on the same device resumes the hole; on another device the player's own counters start at 0 (the card keeps their finished holes) |
-| G10 | per-player behaviours take no bindings object events | clicks bind to `MinimalGolfGame`, which forwards to the local `GolfPlayer`; aim pads and ball picks are wired in code (`GameObject.On`) |
-| G11 | the whole Unity side (kit builder, ball graph, reveal clips, windmill graph, the nine ops, ball-ball ignore pairs, the shader) | not started (no Unity in this step); `bindings.json` is provisional |
+| G1 | portkit: a game could not send its own relay op | closed by portkit `a404a3c`: `GolfRelay.ts` sends through `this.Host.op` (the private-queue shim is gone) |
+| G2 | portkit fake room: game ops noted as "unknown op" | closed: tests declare the nine ops with `room.defineRelayOp` |
+| G3 | portkit fake room: ten key codes only | closed: the fake room has the whole `BS.KeyCode` table; the local table is gone |
+| G4 | portkit golden: no plain-Unity stub set | closed by portkit `7e41822`: `golden/Golden.csproj` compiles portkit's `UnityStubs.cs` and `MetaXRStubs.cs`; vectors regenerated (only the sound draws changed: the stubs' `Random` is Unity's), and the port's `UnityRandom` gives the same 300 draws |
+| G5 | no audio volume or pitch from the page | the balls' sources carry upstream's 0.7; `sfx-volume` is not a setting |
+| G6 | no way to attach a kit object to the local hand | closed by portkit `7e41822`: B2's spheres use `GameObject.AttachToHand` in a headset (not verified in Play mode or the app) |
+| G7 | the page cannot read ball velocities in time | rest and capture come from the ball graph (`golfRest`, `golfCapture`) |
+| G8 | bounce threshold is world-wide (J4) | not set; the host world's applies |
+| G9 | saved progress is per device (localStorage), not per account | a reload on the same device resumes the hole (rung 4) |
+| G10 | per-player behaviours took no bindings object events | closed by portkit `7e41822`: aim pads, ball picks and RESTART HOLE are bound to `GolfPlayer` (b3) |
+| G11 | the Unity side | built (section 12) |
+| G12 | portkit kit side: the C# bindings writer has no graph-event entry (`Bindings.EventEntry` has no `Name`, and `"graph"` is not in `EventKinds`), so a kit builder cannot write `{"kind":"graph","name":...}` | `GolfPlayer.Start` registers the three ball-graph events with `RegisterGraphEvent`; listed as a kit gap in the report |
 
-Not verified anywhere yet (rung 2 and later): every risk of 10.3 (physics at 1:20 through synced objects, the body and
-the table, fixed-step graphs calling back, pose rate for aiming, the shader on Quest, ownership hand-over when a player
-leaves: the departed player's ball is hidden and the next seated player takes it with `TakeOwnership` on placement).
+## 12. The Unity side as built (kit, graphs, rungs 2 to 4)
+
+### 12.1 Project and import
+
+`altspace/` is the Unity project (portkit template, Unity 6000.3.21f1, Creator SDK 4.0.29, Play-mode page port 42600).
+`upstream_import.json` brings `Assets/MinimalGolf` into `Assets/Upstream` (git-ignored) with its `.meta` files and 15
+data-only stand-ins, and no code, audio or editor folder. **The upstream scene opens in 6000.3.21f1** (risk 5 of 10.3):
+`PortKit/Mini Golf/Dump Upstream Scene` (`Assets/Kit/Editor/MiniGolfDump.cs`) lists every object with its meshes,
+materials and colliders, and the 126 Kenney FBX files (importer version 24501 against the editor's 24300) import with
+their sub-object ids intact (the scene's 33 Kenney instances find their meshes). So the kit is built from the scene
+itself, not from a level table, and the builder checks each level against `ts/src/levels.json`: all eight agree, and
+level 7's hole, which section 5.3 had computed, is (-3.055, 0.11, 1.463) as read in the editor (`levels.json` and 5.3
+updated, `provisional` gone).
+
+### 12.2 The kit (`Assets/Kit/Editor/MiniGolfKitBuilder.cs`)
+
+```
+mini-golf                      relay graph (Refs: 61 objects), Variables PkRoot
+  GameSystems                  b1 MinimalGolfGame, b3 GolfPlayer (per player); the six CC0 clips (BS Audio Source + PkClips)
+  Course                       scale 0.05 (the page sets `table-scale`)
+    Level 1 - THE WARM UP ...  the scene's eight levels at their slots; Animator with the level's reveal clip (off until `reveal`)
+      .../AimPad               trigger box over the green, UI layer (desktop aim); only the current level's is on
+      .../blades               (level 3) windmill graph
+    Balls/Ball 0..7            GolfBall.prefab x 8 (pooled; synced transform), one colour each, 3D AudioSource, ball graph
+      Pick                     trigger sphere the size of the ball, UI layer (desktop putt)
+  AimLine                      the upstream LineRenderer, URP Particles/Unlit (vertex colour), off
+  HandSpheres/Left, Right      B2's 5 cm translucent green spheres, off (attached to the hands in a headset)
+  Board                        VR_UI_Root: the four upstream canvases + Scorecard (10 lines, Space Mono), JOIN / RESTART HOLE, credits line
+```
+
+- Materials: the 175 scene copies reduce to the 7 upstream materials plus the ball's (one per slot colour), all on the
+  kit's toon shader with upstream's values (`CopyPropertiesFromMaterial`), and an occluder variant of the Kenney
+  material for the seven objects upstream tagged `RevealOccluder` (custom tags do not exist in the app: every tag is
+  cleared). Stock URP materials (aiming line, hand sphere) get URP's own keyword setup. Textures: Kenney's 512 px
+  colormap only.
+- Shaders: `Assets/Kit/Shaders/MiniGolfToon.shader` ("Mini Golf/Toon (Kit)"): the outline pass retagged
+  `SRPDefaultUnlit`, stereo macros on every pass, the reveal clip always compiled and driven by `_PkReveal*` globals
+  and a per-material `_PkOccluder`, a DepthNormals pass. `StarrySky.shader` is upstream's CG sky, renamed, for a
+  showcase scene only (not in the kit).
+- Text: upstream's TMP texts kept (LiberationSans SDF); clicks go through BoxColliders on the UI layer (GraphicRaycasters
+  and persistent listeners removed, chess's way). PLAY AGAIN's label loses "• TRIGGER" (D6).
+- Behaviours are plain (no upstream stand-in feeds them: the TypeScript's fields are its own); object keys are the
+  ones the rules use. bindings: 83 objects (8 synced, 19 clickable), 61 refs, 3 behaviours, 19 events.
+- Desktop aiming in Play mode showed one limit of `desktop-aim="pull"`: the click goes where the hand is pulled to, so
+  a weak putt toward the player means clicking just beyond the ball, where the ball itself hides the green. The player
+  then clicks to the side and turns the aim with the arrow keys (5 degrees a tap), or walks round the table.
+
+### 12.3 Graphs (GraphWriter; every member on the SDK allow list)
+
+| Graph | Where | What |
+|---|---|---|
+| `mini-golf_relay` | root | portkit's standard ops plus the nine of 11.3: `impulse` (WakeUp, `AddForce(v, Impulse)`, rest watch restarted), `place` (dynamic, interpolated, sleep threshold 0.14, scale 1, position, velocities 0), `assist` (arm with the hole and the seven tuning numbers, or disarm), `sink` (kinematic, the capture move started), `line` (enabled, two points, width, colour), `reveal` (Animator on, `Play("Reveal", 0, t / length)`), `xray` (`Shader.SetGlobalFloat/Vector` for up to two spheres), `uiHeight` (`RectTransform.sizeDelta.y`), `fade` (`Graphic.CrossFadeAlpha` on every graphic under the canvas) |
+| `mini-golf_ball` | each ball | FixedUpdate, on the client that placed the ball and while it is dynamic: the rest watch (3D speed against playableSpeed, three steps after a shot; `golfRest` on each change) and, while armed, MinimalGolfGame.FixedUpdate's cup pull and capture test (`golfCapture`, then disarmed). Update: the capture move (0.10 s and 0.52 s smoothstep, scale 1 -> 0.88 -> 0.08). OnCollisionEnter: `golfImpact` (relative speed, the other collider's name). OnEnable: scale 1, and `Physics.IgnoreCollision` with every other ball (it does not survive a collider being switched off) |
+| `mini-golf_windmill` | level 3's blades | FixedUpdate and Update: `localRotation = Euler(0, 0, SyncedClock.Phase01(5) * 360)`: 72 degrees a second, the same on every client |
+
+The reveal is a baked clip per level (`Assets/Kit/Animations/level<n>_reveal.anim`): each part's local position keyed at
+its offset until its start and at its place at start + 0.55 s with flat tangents, which is exactly upstream's
+two-key ease (smoothstep); lengths 1.235 to 2.06 s as A9. The capture runs with the ball kinematic (upstream kept it
+dynamic while setting its position every frame).
+
+### 12.4 Art replacements
+
+| Upstream | Replaced by | Source | Licence |
+|---|---|---|---|
+| `Golf_Ball_Hit_01..03.wav` (no licence) | `Assets/Kit/Audio/putt1..3.wav` = `switch15..17.wav` | "51 UI sound effects" by Kenney, https://opengameart.org/content/51-ui-sound-effects-buttons-switches-and-clicks | CC0 |
+| `Ball_Fall_To_The_Empty_Hole_01..03.wav` (no licence) | `Assets/Kit/Audio/cup1..3.ogg` = `metalPot1..3.ogg` | "50 RPG sound effects" by Kenney, https://opengameart.org/content/50-rpg-sound-effects | CC0 (`license.txt` in the zip) |
+| `Classic_Woosh.wav`, three music tracks | nothing | never played (H5) / no licence | left out |
+| (new) scorecard font | `Assets/Kit/Fonts/SpaceMono-Regular.ttf` | Google Fonts, https://github.com/google/fonts/tree/main/ofl/spacemono | SIL OFL 1.1 |
+
+Each file was downloaded into its own folder and its type checked (`file`: WAV PCM, Ogg Vorbis, TrueType). kenney.nl's
+own download needs a signed link from its page script, so the same Kenney packs were taken from OpenGameArt, where
+Kenney published them with the CC0 licence field. The Kenney Minigolf Kit models (CC0) are kept and credited. Everything
+is recorded in `THIRD-PARTY-NOTICES.md` (also inside both bundles).
+
+### 12.5 Physics at 1:20 (risk 1 of 10.3)
+
+The ball is upstream's prefab unchanged: radius 0.16 under a 0.05 course (8 mm), mass 0.45, linear damping 0.65,
+angular 0.9, interpolated, continuous dynamic collision, upstream's physics material; the course colliders are the
+scene's (92 boxes, 24 non-convex Kenney meshes). **Tunnelling:** a full-power putt (impulse 2.0, 4.4 m/s) forward, back,
+left and right from each hole's reset point, the ball's position followed in level units: 32 shots, **none passed
+through a rail**. One leaves the course over the top: on HILLSIDE TURN a full-power putt straight up the "Lower Rise"
+hill is launched about 4 level units (20 cm) high and lands beyond the top rail; the ball is returned (D2). That is the
+hill doing what a hill does at 4.4 m/s with upstream's own colliders. The host world's bounce threshold (J4) and contact
+offset are not ours to set.
+
+### 12.6 Rungs 2 to 4
+
+See `TESTS.md` for the evidence lines. Rung 2 (`PortKit/Kit/Check`): 0 disallowed graph nodes, 83 bindings resolve,
+hash matches, Android 1,214 KiB and Windows 1,301 KiB both PASS the app's kit check. Rung 3 (`playtest/single.json`) and
+rung 4 (`playtest/multi.json`) drive the table through the SDK's desktop player with portkit's InputSim (clicks on the
+green and the board, Space, arrow keys, R).
+
+### 12.7 What remains unverified
+
+- Everything in the Altspace app and on a Quest (rung 5): frame time with eight levels and their outlines, the toon
+  shader and its stereo passes on Quest, the bundle in the app's own check, laser clicks on the aim pads (triggers) and
+  the board, sound (nobody listened in Play mode), haptics.
+- VR aiming (B3 to B8: hand within 0.19 m, trigger, pull) and the hand spheres (`AttachToHand`): fake room only; desktop
+  Play mode has no hands.
+- The x-ray (F3 to F6): the `xray` op and the shader are built; grip and the desktop G key were not driven in Play mode,
+  and no probe reads shader globals.
+- The windmill's angle and the reveal clips part by part were not read back from Unity (the reveal ran before each
+  placement; the windmill graph passes the SDK's check).
+- Ownership hand-over when a player leaves the room (as opposed to reloading), and a player taking over a departed
+  player's ball: fake room only.
+- Physics against the host world's settings (bounce threshold, layer matrix) and a player's body standing in the table.
+- The `golfImpact` haptics (desktop has no haptics).

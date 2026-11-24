@@ -130,10 +130,11 @@ namespace MiniGolf
                 audio.maxDistance = 5f;
                 audio.rolloffMode = AudioRolloffMode.Linear;
                 audio.priority = 32;
-                // the desktop pick: a trigger a little larger than the ball, on the UI layer (the kit builder sets it)
+                // the desktop pick: a trigger the size of the ball, on the UI layer (the kit builder sets it). No larger: a weak
+                // putt is a click on the green a centimetre behind the ball, which a bigger pick would catch first
                 var pick = stage.Create("Pick", ball.transform);
                 var pickCollider = pick.AddComponent<SphereCollider>();
-                pickCollider.radius = 0.22f;
+                pickCollider.radius = 0.16f;
                 pickCollider.isTrigger = true;
                 var vars = ball.AddComponent<Variables>();
                 vars.declarations.Set("PkSlot", s.ToString(CultureInfo.InvariantCulture));

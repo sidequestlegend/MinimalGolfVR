@@ -110,7 +110,12 @@
     const shotsBefore = me().shotNumber;
     const ball = debug().ballWorld(me().slot);
     const f = frame();
-    const point = [ball[0] - dir[0] * pull, f.greenY + 0.15 * SCALE, ball[2] - dir[1] * pull];
+    // where the hand is pulled to, from the ball; a point on the far side of the ball (seen from the player, who stands
+    // at -z) hides behind it, so the click goes a quarter turn to the side and LeftArrow turns the aim back (5 degrees a tap)
+    let hand = [-dir[0] * pull, -dir[1] * pull];
+    const hidden = hand[1] > 0.002;
+    if (hidden) hand = [hand[1], -hand[0]];
+    const point = [ball[0] + hand[0], f.greenY + 0.15 * SCALE, ball[2] + hand[1]];
     await cmd("look " + ball.join(" "));
     const clicked = await cmd("click " + point.join(" "));
     await until(() => me().aiming, 2000, 50);
@@ -118,11 +123,12 @@
       say("INFO", label + ": no aim after the click", clicked);
       return false;
     }
+    if (hidden) for (let i = 0; i < 18; i++) await cmd("key LeftArrow tap");
     for (let i = 0; i < (boost || 0); i++) await cmd("key UpArrow tap");
     const power = me().shotPower;
     await cmd("key Space tap");
     const shot = await until(() => me().shotNumber > shotsBefore, 3000, 50);
-    say("INFO", label, `pull ${pull.toFixed(3)} m + ${boost || 0} steps, power ${power.toFixed(3)}, strokes ${before} -> ${me().levelStrokes}${shot ? "" : " (NO SHOT)"}`);
+    say("INFO", label, `pull ${pull.toFixed(3)} m${hidden ? " (clicked to the side, turned back with 18 x LeftArrow)" : ""} + ${boost || 0} steps, power ${power.toFixed(3)}, strokes ${before} -> ${me().levelStrokes}${shot ? "" : " (NO SHOT)"}`);
     return !!shot;
   }
 
@@ -131,6 +137,10 @@
     const shot = me().shotNumber;
     const done = await until(() => me().finished !== 0 || me().capturing || (me().restShot >= shot && me().atRest), ms || 20000, 100);
     if (!done) return null;
+    // at rest inside the cup's pull (assistRadius 0.04 m): the assist keeps drawing it in; give it time to drop
+    const b = debug().ballWorld(me().slot);
+    const h = debug().holeWorld();
+    if (me().finished === 0 && !me().capturing && Math.hypot(b[0] - h[0], b[2] - h[2]) < 0.045) await until(() => me().capturing || me().finished !== 0, 4000, 50);
     if (me().capturing || me().finished === 1) {
       await until(() => me().finished === 1, 3000, 50);
       return true;
@@ -149,7 +159,8 @@
       const dz = hole[2] - ball[2];
       const dist = Math.hypot(dx, dz);
       const dir = [dx / dist, dz / dist];
-      const pull = Math.max(0.006, Math.min(0.16, k * dist));
+      // at least 1.05 cm: a click closer to the ball lands on the ball's own pick, which putts only while aiming
+      const pull = Math.max(0.0105, Math.min(0.16, k * dist));
       if (!(await putt(dir, pull, 0, `putt ${stroke + 1} from ${dist.toFixed(3)} m`))) return false;
       const result = await settle(20000);
       if (result === true) return true;
@@ -184,7 +195,12 @@
     const spawn = debug().spawnWorld();
     const off = Math.hypot(pos[0] - spawn[0], pos[2] - spawn[2]);
     check(!!live && off < 0.01, "after the reveal the ball is placed at the reset point and reported at rest (ball graph: golfRest)", `ball ${fmt(pos)}, reset point ${fmt(spawn)}, ${off.toFixed(4)} m apart`);
-    check((await probe("active", ballPath)) === "True", "the own ball shows", "");
+    let shows = "";
+    for (let i = 0; i < 20 && shows !== "True"; i++) {
+      shows = await probe("active", ballPath);
+      if (shows !== "True") await sleep(150);
+    }
+    check(shows === "True", "the own ball shows", shows);
     await cmd("shot start 0 " + (spawn[1] + 0.45) + " " + (spawn[2] - 0.35) + " 0 " + spawn[1] + " " + (spawn[2] + 0.25) + " 60");
 
     // ---- hole 1 to the cup ----
@@ -221,8 +237,10 @@
     check(!!returned && me().levelStrokes === before && Math.hypot(pos3[0] - spawn2[0], pos3[2] - spawn2[2]) < 0.01 && Math.abs(pos3[1] - spawn2[1]) < 0.01,
       "out of bounds resets the ball to the reset point, BALL RETURNED, no stroke (D1, D2)", `ball ${fmt(pos3)}, strokes ${before} -> ${me().levelStrokes}`);
 
-    // ---- tunnelling: full power in four directions on every hole ----
-    await tunnelling();
+    // ---- tunnelling: full power in four directions on every hole, in a new round (hole 1 is already on the card) ----
+    debug().newRound();
+    await until(() => debug().hole() === 0 && debug().seat(debug().myUid()) < 0, 5000, 100);
+    if (await join("the player, in a new round")) await tunnelling();
   }
 
   async function tunnelling() {
@@ -402,7 +420,7 @@
       const dx = f.hole[0] - ball[0];
       const dz = f.hole[2] - ball[2];
       const d = Math.hypot(dx, dz);
-      await putt([dx / d, dz / d], 0.006, 0, "A's first putt (short)");
+      await putt([dx / d, dz / d], 0.0105, 0, "A's first putt (short)");
       await settle(15000);
       send({ kind: "puttDone" });
       send({ kind: "watching" });
@@ -419,7 +437,7 @@
       const dx = f.hole[0] - ball[0];
       const dz = f.hole[2] - ball[2];
       const d = Math.hypot(dx, dz);
-      await putt([dx / d, dz / d], 0.006, 0, "B's first putt (short)");
+      await putt([dx / d, dz / d], 0.0105, 0, "B's first putt (short)");
       await settle(15000);
     }
 

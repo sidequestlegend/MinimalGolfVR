@@ -7262,6 +7262,11 @@ ${label}`)));
           if (ball) ball.transform.position = new Vector3(x, y, z);
           return !!ball;
         },
+        newRound: () => {
+          if (!golf().Networking.IsReferee) return false;
+          golf().StartRound(false);
+          return true;
+        },
         loadLevel: (level) => {
           if (!golf().Networking.IsReferee) return false;
           golf().LoadLevel(level);

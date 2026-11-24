@@ -298,25 +298,25 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: Unity.XR.OpenXR::UnityEngine.XR.OpenXR.OpenXRSettings
   features:
-  - {fileID: 6928142960606717796}
-  - {fileID: -5000224353409496830}
   - {fileID: -4776953213442169562}
-  - {fileID: 7690212638746616308}
-  - {fileID: 6097589317837708968}
-  - {fileID: 1790027989536247398}
-  - {fileID: 3693940146005237915}
-  - {fileID: -5339622744197377519}
   - {fileID: -7977869082973279313}
-  - {fileID: -8011793509626976297}
-  - {fileID: -2302309566163752536}
-  - {fileID: 6606294721891408789}
-  - {fileID: -2911978478971298328}
-  - {fileID: 1304503284901229683}
-  - {fileID: 22586128424524036}
-  - {fileID: -2557158073605161462}
+  - {fileID: 3693940146005237915}
   - {fileID: -3341476520606035271}
+  - {fileID: -2557158073605161462}
+  - {fileID: 6606294721891408789}
+  - {fileID: -8011793509626976297}
+  - {fileID: 1304503284901229683}
+  - {fileID: -2911978478971298328}
   - {fileID: 7135453257570852517}
+  - {fileID: -5339622744197377519}
+  - {fileID: 1790027989536247398}
+  - {fileID: -2302309566163752536}
+  - {fileID: -5000224353409496830}
+  - {fileID: 6097589317837708968}
+  - {fileID: 7690212638746616308}
+  - {fileID: 6928142960606717796}
   - {fileID: -2013245629956883802}
+  - {fileID: 22586128424524036}
   customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 0
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_symmetricProjection: 0
   m_optimizeMultiviewRenderRegions: 0
   m_multiviewRenderRegionsOptimizationMode: 0
-  m_hasMigratedMultiviewRenderRegionSetting: 0
+  m_hasMigratedMultiviewRenderRegionSetting: 1
   m_foveatedRenderingApi: 0
   m_useOpenXRPredictedTime: 0
 --- !u!114 &-2911978478971298328
@@ -596,7 +596,7 @@ MonoBehaviour:
   lateLatchingDebug: 0
   optimizeMultiviewRenderRegions: 0
   m_multiviewRenderRegionsOptimizationMode: 0
-  m_hasMigratedMultiviewRenderRegions: 0
+  m_hasMigratedMultiviewRenderRegions: 1
   spacewarpMotionVectorTextureFormat: 0
 --- !u!114 &1304503284901229683
 MonoBehaviour:
@@ -982,25 +982,25 @@ MonoBehaviour:
   m_Name: Android
   m_EditorClassIdentifier: Unity.XR.OpenXR::UnityEngine.XR.OpenXR.OpenXRSettings
   features:
-  - {fileID: -880868744489408064}
-  - {fileID: 4680725030023534078}
-  - {fileID: -7223241708645335042}
-  - {fileID: 943863554542379912}
-  - {fileID: 6810744237312062279}
-  - {fileID: -3668648342233094293}
-  - {fileID: 7094563542851058525}
-  - {fileID: -9205890929196991683}
-  - {fileID: -5127884685046335622}
-  - {fileID: 2125593977134386367}
-  - {fileID: 7450319624806951477}
   - {fileID: -220149168919043573}
+  - {fileID: 7036971250386821958}
+  - {fileID: 6810744237312062279}
+  - {fileID: 7450319624806951477}
+  - {fileID: -5127884685046335622}
+  - {fileID: -9207975053778424692}
+  - {fileID: 5134472356879384246}
   - {fileID: 7128782788868095306}
   - {fileID: -524170510539187724}
-  - {fileID: -3481655759720951931}
-  - {fileID: 5134472356879384246}
-  - {fileID: -9207975053778424692}
+  - {fileID: 943863554542379912}
   - {fileID: 394419739018650263}
-  - {fileID: 7036971250386821958}
+  - {fileID: 2125593977134386367}
+  - {fileID: -9205890929196991683}
+  - {fileID: -7223241708645335042}
+  - {fileID: 4680725030023534078}
+  - {fileID: 7094563542851058525}
+  - {fileID: -3668648342233094293}
+  - {fileID: -880868744489408064}
+  - {fileID: -3481655759720951931}
   customLoaderName: 
   m_renderMode: 1
   m_latencyOptimization: 0
@@ -1013,6 +1013,6 @@ MonoBehaviour:
   m_symmetricProjection: 0
   m_optimizeMultiviewRenderRegions: 0
   m_multiviewRenderRegionsOptimizationMode: 0
-  m_hasMigratedMultiviewRenderRegionSetting: 0
+  m_hasMigratedMultiviewRenderRegionSetting: 1
   m_foveatedRenderingApi: 0
   m_useOpenXRPredictedTime: 0
