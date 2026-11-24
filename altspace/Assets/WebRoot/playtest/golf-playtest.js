@@ -246,8 +246,14 @@
     const card = await probe("text", debug().pathOf("cardLine2"));
     check(new RegExp("\\s" + holeStrokes + "\\s").test(card), "the scorecard records the hole, the restarted attempt included", card);
     const next = await until(() => debug().hole() === 1, 8000, 100);
-    const name2 = await probe("text", debug().pathOf("courseText"));
-    const level2 = await probe("text", debug().pathOf("levelText"));
+    // poll Unity: the text ops land a frame or more after the page changed the level (README "Probes run ahead")
+    let name2 = "";
+    let level2 = "";
+    for (let i = 0; i < 30 && (name2 !== "THE GARDEN" || level2 !== "LEVEL 2 / 8"); i++) {
+      if (i > 0) await sleep(100);
+      name2 = await probe("text", debug().pathOf("courseText"));
+      level2 = await probe("text", debug().pathOf("levelText"));
+    }
     check(!!next && name2 === "THE GARDEN" && level2 === "LEVEL 2 / 8", "the next level loads 2.05 s later (THE GARDEN)", `${name2}, ${level2}`);
     const placed2 = await ready(20000);
     const spawn2 = debug().spawnWorld();

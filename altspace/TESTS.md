@@ -62,17 +62,33 @@ Graph members: all on the SDK allow list (`GraphWriter.Save`). Kit: 377 objects,
 portkit-LICENSE.txt, LiberationSans - OFL.txt"); textures: Kenney's 512 px colormap and the two font atlases.
 
 Artifacts (`PortKit/Kit/Export Artifacts`, `altspace/dist/`, not committed): `android/mini-golf`, `windows/mini-golf`,
-`pk-mini-golf.js` (MIT header), `mini-golf.jpg`, `mini-golf.snippet.html` (`position="0 1 0"` and the nine settings),
-`manifest.json` (checks android PASS, windows PASS, bindings `8695da87...`, footprint 3.96 x 1 x 5.31 m: the board stands
-2.7 m behind the green, as upstream's does).
+`pk-mini-golf.js` (391,705 bytes, the game's MIT notice in full and portkit's MIT banner), `mini-golf.jpg`,
+`mini-golf.snippet.html` (`position="0 1 0"` and the nine settings), `manifest.json` (2026-11-25: checks android PASS,
+windows PASS, bindings `89c115ae...`, files android 1,245,822 and windows 1,347,466 bytes, footprint 3.96 x 0.24 x 5.1 m).
+The footprint was 3.96 x 1 x 5.31 m on 2026-11-24: the kit's footprint now counts only `Renderer`s, so the uGUI board
+(2.7 m behind the green, about 1 m tall) is left out of it (a kit gap, reported); the photo still shows the board.
 
 ## Rung 3: Play mode, one player (`playtest/single.json`)
 
 A hand-written `<bs-snippet name="mini-golf" ... position="0 0.7 0.55">` with the built script and both bundles from the
 test's local server, and `Assets/WebRoot/playtest/golf-playtest.js`, which drives the table through the SDK's desktop
 player with portkit's InputSim (a mouse and keyboard of the test's own; the SDK casts its own rays and raises the page's
-click and key events) and reads Unity back with the `probe` command. **RESULT 24 passed, 0 failed**
-(`playtest/evidence_single.txt`, pictures `playtest/evidence_single_start.jpg`, `evidence_single_hole2.jpg`).
+click and key events) and reads Unity back with the `probe` command. **RESULT 25 passed, 0 failed, twice in a row**
+on 2026-11-25 on the rebuilt bundles (`playtest/evidence_single.txt`, pictures `playtest/evidence_single_start.jpg`,
+`evidence_single_hole2.jpg`). New since the re-sync: RESTART HOLE on the board after a first putt, then the hole to the
+cup, and the hole-complete message and the card counting the restarted attempt (review finding 6, seen in Unity). The
+lines below are the 2026-11-24 run's; the 2026-11-25 lines differ only where noted:
+
+```
+PASS RESTART HOLE (board button): ball back at the reset point (Unity and the page), level strokes 0, the hole keeps its stroke (K2): level 0, hole 1, ball 0.000,0.713,0.348, page 0.000,0.713,0.347
+PASS hole 1 played to the cup with desktop controls (click the green, Space): 3 strokes this attempt, 4 on the hole, finished 1
+PASS the hole-complete message counts the hole's strokes, the restarted attempt included (review finding 6): HOLE COMPLETE  •  +2 OVER PAR (4 strokes, par 2)
+PASS the scorecard records the hole, the restarted attempt included: Main Editor    4                                4
+```
+
+Three checks now poll Unity instead of reading it once (the ball after RESTART HOLE, on the next hole and after out of
+bounds; the board's level name): the relay's op lands a frame or more after the page asked (portkit README "Probes run
+ahead of the relay"); a single read failed once in four runs each way.
 
 ```
 PASS the kit loads from a hand-written bs-snippet and the instance starts: hole 0
@@ -129,8 +145,10 @@ back, left and right from each hole's reset point, the ball followed in level un
 
 The main editor and a Multiplayer Play Mode clone (`PortKit/Multiplayer/Activate Player 2`) open the same page. The
 player whose session id sorts first is A. They follow each other through the table's state and exchange checkpoints
-(digests) as one-shots, which the runtime ignores. After hole 1, B reloads its page. **RESULT 27 passed, 0 failed**
-(`playtest/evidence_multi.txt`).
+(digests) as one-shots, which the runtime ignores. After hole 1, B reloads its page. **RESULT 27 passed, 0 failed,
+twice in a row** on 2026-11-25 (`playtest/evidence_multi.txt`). The digests are now compared at the same `version()`
+(each page waits until it reports the other's version, then compares `stamp()`): "B's page, reloaded, holds the same
+state as A's (digest at the same version): 9de269ec / 9de269ec at 12:eae955f4" (first run: f6103a2f at 12:b47558f6).
 
 ```
 [main] PASS JOIN (a UI collider, real mouse) seats A: slot 0, button LEAVE

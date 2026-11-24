@@ -1176,3 +1176,7 @@ green and the board, Space, arrow keys, R).
   player's ball: fake room only.
 - Physics against the host world's settings (bounce threshold, layer matrix) and a player's body standing in the table.
 - The `golfImpact` haptics (desktop has no haptics).
+- Of the 2026-11-25 review fixes, only RESTART HOLE with the hole-complete message and the card (finding 6), the graph
+  events bound by the kit builder and the licence texts in the bundles ran in Unity; the hole timeout and its capture
+  grace, missed holes after a leave or a slow reload, the stroke limit's refusal, a reload during the sink, the card's
+  row limit and the ball graph at a `table-scale` other than 0.05 are Node-only (fake room, or the builder's source).
