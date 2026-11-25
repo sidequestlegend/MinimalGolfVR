@@ -22,6 +22,14 @@ portkit/tools/playtest.sh altspace altspace/playtest/tunnel.json mini-golf    th
 portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     rung 4 (activates Player 2 itself)
 ```
 
+## Page script on portkit 552622c, 2026-11-25 evening
+
+Re-synced `ts/portkit` and the package to portkit `552622c`. That commit includes `425bd55`: the page loads kit
+items one at a time, because overlapping loads lost relay graphs and Variables in the app. It also includes
+`0880bf5`: a referee claimant starts only once its claim has stood for 1.5 s, which fixes the equal-term double
+claim, and user-state flushes go one at a time. The bundles are unchanged from the rebuild below. `npm test`:
+**49 of 49** (0 failed). `npm run build`: 407472 bytes. Export Artifacts -> `dist/`: 11 files (6 licence texts), footprint 4.11 x 2.45 x 5.1 m, bindings 89c115ae664cb468cacde5366397235cf84ea1fd.
+
 ## Canvas colliders, 2026-11-25 evening (portkit 16be5ff: 476075d and 425bd55)
 
 In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit
