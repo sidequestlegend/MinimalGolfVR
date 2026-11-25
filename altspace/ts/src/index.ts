@@ -47,8 +47,14 @@ const game: GameDefinition = {
       moveBall: (x: number, y: number, z: number) => {
         const p = golf().LocalPlayer();
         const ball = p && p.slot >= 0 ? golf().balls[p.slot] : null;
-        if (ball) ball.transform.position = new Vector3(x, y, z);
-        return !!ball;
+        if (!ball || !p) return false;
+        // The page's own copy and the body in Unity, as InstantiateBallAtSpawn does. A bare transform write on the
+        // interpolated, dynamic Rigidbody was lost in one Play-mode run of two (2026-11-25): Unity's ball never left
+        // the green and the page never saw it outside. `place` sets the body's position and velocities.
+        const at = new Vector3(x, y, z);
+        ball.transform.position = at;
+        golf().relay.place(ball.key, at, p.shotNumber);
+        return true;
       },
       newRound: () => {
         if (!golf().Networking.IsReferee) return false;

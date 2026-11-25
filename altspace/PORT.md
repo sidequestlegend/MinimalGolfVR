@@ -1064,6 +1064,30 @@ instead of 0.62 s). (b) A departed player whose row was dropped to make room (af
 the current hole, as a late joiner does; holes missed before that show `-`, not a score. Both are rare and small, and a
 fix would need the referee to wait for every client or keep an unbounded card.
 
+### 11.9 Re-sync to portkit c971100 (2026-11-25, BRIEF-resync-2)
+
+`portkit/tools/sync.sh mini-golf` brought `Packages/com.altspacegames.portkit` and `ts/portkit` to c971100 (28 kit files
+changed; the kit copy's own suite: 110 of 110). Nothing in the game's code had to change for the kit's breaking changes:
+mini-golf calls neither `verifyDeal` nor the attachment ids, and its `GolfPlayer` per-player fields now count in
+`digest()` / `version()`, which rung 4 compares at equal versions as before (now at version 21 where it was 12).
+
+| What | Result |
+|---|---|
+| Workarounds to drop | none: the brief's item ("any footprint override set only to cover uGUI") does not apply. mini-golf never set `PhotoBounds`, `GizmoSize`, `FootprintRoot` or `FootprintBounds`; it reported the gap (footprint 3.96 x 0.24 x 5.1 m on 812f285, the board left out) and left the footprint as the kit made it. The kit now counts world-space uGUI: **4.11 x 2.45 x 5.1 m**, the board and its scorecard in |
+| Kit rebuild | Build Prefabs: bindings unchanged (`89c115ae...`, 83 objects, 22 events); the relay graph gains `pkHead` (36 ops); no grabbables, so no `BSPlayerEvents`; each of the eight balls gains the kit's `PkLaunchSteps` / `PkLaunchVelocity`
+variables (per-target `rbLaunch`), unused: the game putts with its own `impulse` op. Bundles PASS the app's kit check: Android 1,228 KiB, Windows 1,322 KiB (1,217 / 1,316 on 812f285); graph blobs 664 KiB (630) |
+| Artifacts | `dist/licenses/mini-golf/` (new): the six licence texts the bundles carry, each with its sha1 in `manifest.json`; `pk-mini-golf.js` 404,655 bytes |
+| Rung 1 | 49 of 49 |
+| Rung 2 | PASS: 0 disallowed nodes, 83 bindings resolve, hash matches, both bundles PASS |
+| Rung 3 | 25 of 25 twice in a row, after a fix to the test lever `debug.moveBall` (it now sends `place` as well as writing the page's transform; a bare transform write on the interpolated ball was lost in Unity in one run, and out of bounds was never seen) |
+| Rung 4 | 27 of 27 twice in a row, after the driver polls the player's own ball as it already polled the other's (one run read it once, a frame before the `active` op landed) |
+
+Newly verified: the uGUI board counts in the footprint and the photo frames it (Take Photos: 220 renderers, size 4.11 x
+2.45 x 5.10, camera 14 m away); licence texts in `dist/`; the per-player digest agrees across a reload (rung 4).
+The command write mark is in play: JOIN on the non-referee page is a `SendCommand("Join")`, and it seated that player
+in all four rung 4 runs. Not used by mini-golf: `checkDeal`, `Networking.HeadOf`, `InReach`, `KitStage.Attachable` /
+`StartOff`.
+
 ## 12. The Unity side as built (kit, graphs, rungs 2 to 4)
 
 ### 12.1 Project and import
@@ -1156,8 +1180,8 @@ offset are not ours to set.
 ### 12.6 Rungs 2 to 4
 
 See `TESTS.md` for the evidence lines. Rung 2 (`PortKit/Kit/Check`): 0 disallowed graph nodes, 83 bindings resolve,
-hash matches, Android 1,217 KiB and Windows 1,316 KiB both PASS the app's kit check (1,214 and 1,301 KiB before the
-2026-11-25 re-sync: the licence texts and the newer relay graph). Rung 3 (`playtest/single.json`) and
+hash matches, Android 1,228 KiB and Windows 1,322 KiB both PASS the app's kit check on portkit c971100 (1,217 and
+1,316 KiB on 812f285; 1,214 and 1,301 KiB before that: the licence texts and the newer relay graphs). Rung 3 (`playtest/single.json`) and
 rung 4 (`playtest/multi.json`) drive the table through the SDK's desktop player with portkit's InputSim (clicks on the
 green and the board, Space, arrow keys, R).
 

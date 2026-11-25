@@ -1,8 +1,13 @@
 # mini-golf: test evidence
 
-Everything here ran on 2026-11-24 and again on 2026-11-25 (after the re-sync to portkit 812f285 and the review
-fixes, PORT.md 11.8) on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran
-in the Altspace app, on a Quest, or with controllers (rung 5: not run; worlds stay Private).
+Everything here ran on 2026-11-24, again on 2026-11-25 (after the re-sync to portkit 812f285 and the review
+fixes, PORT.md 11.8), and a third time later on 2026-11-25 after the re-sync to portkit c971100 (PORT.md 11.9), on
+Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor. Nothing ran in the Altspace app, on a Quest, or
+with controllers (rung 5: not run; worlds stay Private).
+
+**Third run, portkit c971100 (2026-11-25):** rung 1 49/49; rung 2 PASS (bundles Android 1,228 KiB, Windows 1,322
+KiB, both PASS the app's kit check); rung 3 **25/25 twice in a row**; rung 4 **27/27 twice in a row**. Two test-driver
+races showed up on the way and were fixed in the driver, not the checks (one run each, see rungs 3 and 4).
 
 How to run each rung again:
 
@@ -24,8 +29,9 @@ portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     ru
 ## Rung 1: Node (no Unity)
 
 `npm test` in `altspace/ts`: **49 tests, 49 pass, 0 fail**, on the kit builder's real `bindings.json` (hash
-`89c115ae664cb468cacde5366397235cf84ea1fd`: the three ball-graph events are now bindings) and the portkit runtime at
-812f285.
+`89c115ae664cb468cacde5366397235cf84ea1fd`: the three ball-graph events are now bindings, unchanged by the c971100
+rebuild) and the portkit runtime at c971100 (812f285 before). The kit copy's own suite (`ts/portkit`, `node --test`):
+110 of 110 pass.
 
 - **Review findings (11)**, `test/fixes.test.ts`: one or more per finding (PORT.md 11.8). Each was run against the code
   before its fix and failed there (11 of 11, and the old "hole timeout" scenario, which had locked in a score of 1).
@@ -50,23 +56,31 @@ portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     ru
 ```
 PASS graphs: the SDK's check found 0 nodes the app will not run
 PASS mini-golf bindings: 83 objects resolve by path; hash matches (89c115ae664cb468cacde5366397235cf84ea1fd)
-PASS mini-golf android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 217/1662, behaviours 199, scripts 10, calls 0, animation events 0, graph blobs 32 (630 KiB) ...
+PASS mini-golf android bundle: PASS Kind=Pass Reasons=[] Reports=[] Stats=files 1 (format 22), scenes 0, objects 217/1667, behaviours 199, scripts 10, calls 0, animation events 0, graph blobs 32 (664 KiB) ...
 PASS mini-golf windows bundle: PASS Kind=Pass Reasons=[] Reports=[] ...
 DONE
 ```
 
 Graph members: all on the SDK allow list (`GraphWriter.Save`). Kit: 377 objects, 83 bound (8 synced, 19 clickable),
-61 refs, 3 behaviours, 22 events (19 clicks, 3 graph events). Bundles: Android 1,217 KiB, Windows 1,316 KiB (1,214 and
-1,301 before the re-sync), each with the third-party notices and six licence texts inside (`Logs/portkit_bundles.txt`:
+61 refs, 3 behaviours, 22 events (19 clicks, 3 graph events); the relay graph now also carries portkit's `pkHead` op
+(36 ops). Bundles: Android 1,228 KiB, Windows 1,322 KiB on portkit c971100 (1,217 and 1,316 on 812f285, 1,214 and
+1,301 before that), each with the third-party notices and six licence texts inside (`Logs/portkit_bundles.txt`:
 "licence texts: CC0-1.0-legalcode.txt, Kenney-MinigolfKit-License.txt, MinimalGolfVR-LICENSE.txt, SpaceMono-OFL.txt,
 portkit-LICENSE.txt, LiberationSans - OFL.txt"); textures: Kenney's 512 px colormap and the two font atlases.
 
 Artifacts (`PortKit/Kit/Export Artifacts`, `altspace/dist/`, not committed): `android/mini-golf`, `windows/mini-golf`,
-`pk-mini-golf.js` (391,705 bytes, the game's MIT notice in full and portkit's MIT banner), `mini-golf.jpg`,
-`mini-golf.snippet.html` (`position="0 1 0"` and the nine settings), `manifest.json` (2026-11-25: checks android PASS,
-windows PASS, bindings `89c115ae...`, files android 1,245,822 and windows 1,347,466 bytes, footprint 3.96 x 0.24 x 5.1 m).
-The footprint was 3.96 x 1 x 5.31 m on 2026-11-24: the kit's footprint now counts only `Renderer`s, so the uGUI board
-(2.7 m behind the green, about 1 m tall) is left out of it (a kit gap, reported); the photo still shows the board.
+`pk-mini-golf.js` (404,655 bytes, the game's MIT notice in full and portkit's MIT banner), `mini-golf.jpg`,
+`mini-golf.snippet.html` (`position="0 1 0"` and the nine settings), `licenses/mini-golf/` (new in c971100: the six
+licence texts the bundles carry, each with its sha1 in the manifest), `manifest.json` (c971100: checks android PASS,
+windows PASS, bindings `89c115ae...`, files android 1,257,604 and windows 1,353,583 bytes, footprint 4.11 x 2.45 x
+5.1 m, centre y 1.19 m). Take Photos: "220 renderers (13 bound objects off), size (4.11, 2.45, 5.10), camera 14.0 m
+away"; the photo shows the eight greens and the board.
+
+The footprint was 3.96 x 1 x 5.31 m on 2026-11-24 and 3.96 x 0.24 x 5.1 m on 812f285, whose footprint counted only
+`Renderer`s and so left the uGUI board (2.7 m behind the green) out (reported as a kit gap). portkit c971100 counts every
+visible graphic under a world-space Canvas, so the board is in again, now with its full height (the scorecard and the
+credits line above it reach about 2.4 m above the kit's origin). mini-golf never set a `PhotoBounds`, `GizmoSize` or footprint override to
+make up for it, so there was nothing to drop.
 
 ## Rung 3: Play mode, one player (`playtest/single.json`)
 
@@ -77,7 +91,28 @@ click and key events) and reads Unity back with the `probe` command. **RESULT 25
 on 2026-11-25 on the rebuilt bundles (`playtest/evidence_single.txt`, pictures `playtest/evidence_single_start.jpg`,
 `evidence_single_hole2.jpg`). New since the re-sync: RESTART HOLE on the board after a first putt, then the hole to the
 cup, and the hole-complete message and the card counting the restarted attempt (review finding 6, seen in Unity). The
-lines below are the 2026-11-24 run's; the 2026-11-25 lines differ only where noted:
+lines below are the 2026-11-24 run's; the 2026-11-25 lines differ only where noted.
+
+On portkit c971100 (2026-11-25, third run): the first run passed 25 of 25, the second **failed one check** (24 of 25):
+
+```
+PASS on hole 2 the ball is back at its reset point, level strokes 0, total kept: ball -0.075,0.715,0.250, total 4
+FAIL out of bounds resets the ball to the reset point, BALL RETURNED, no stroke (D1, D2): ball -0.075,0.713,0.250, strokes 0 -> 0
+```
+
+The page never showed BALL RETURNED because the ball never left the green: the test lever `debug.moveBall` only wrote
+the page's `transform.position`, and on the interpolated, dynamic Rigidbody that write was lost in Unity (Unity read
+the ball at 0.715 m just before the move and at 0.713 m after the 4 s wait: it had not moved). The lever now also sends the game's own `place` op
+(position and velocities on the body, as `InstantiateBallAtSpawn` does; `ts/src/index.ts`, test pages only). The check
+is unchanged. After that: **25 of 25 twice in a row** (`playtest/evidence_single.txt` is the second):
+
+```
+[main] PASS on hole 2 the ball is back at its reset point, level strokes 0, total kept: ball -0.075,0.715,0.250, total 4
+[main] PASS out of bounds resets the ball to the reset point, BALL RETURNED, no stroke (D1, D2): ball -0.075,0.713,0.250, strokes 0 -> 0
+[main] INFO tunnelling: 32 full-power shots, 0 through a rail
+```
+
+The 2026-11-24 lines:
 
 ```
 PASS RESTART HOLE (board button): ball back at the reset point (Unity and the page), level strokes 0, the hole keeps its stroke (K2): level 0, hole 1, ball 0.000,0.713,0.348, page 0.000,0.713,0.347
@@ -149,6 +184,31 @@ player whose session id sorts first is A. They follow each other through the tab
 twice in a row** on 2026-11-25 (`playtest/evidence_multi.txt`). The digests are now compared at the same `version()`
 (each page waits until it reports the other's version, then compares `stamp()`): "B's page, reloaded, holds the same
 state as A's (digest at the same version): 9de269ec / 9de269ec at 12:eae955f4" (first run: f6103a2f at 12:b47558f6).
+
+On portkit c971100 (2026-11-25, third run) the first two runs gave 27 of 27, then 26 of 27:
+
+```
+[main] CMD g6 probe pk1:mini-golf:0 active Course/Balls/Ball%201
+[main] REPLY g6 False
+[main] FAIL each player has a ball, and sees the other's: mine ball1, theirs ball0 active True
+```
+
+The driver polled the other player's ball but read its own once, right after the page had placed it; the `active` op
+lands a frame or more later (portkit README "Probes run ahead of the relay"). Both are polled now (up to 10 s), the
+check unchanged. In that run the main editor was B (the session ids sorted the other way), so it joined 3 s later.
+After the fix: **27 of 27 twice in a row** (`playtest/evidence_multi.txt` is the second; the main editor was B in both):
+
+```
+[main] PASS each player has a ball, and sees the other's: mine ball1 active True, theirs ball0 active True
+[vp-mppm08e07853] PASS each player has a ball, and sees the other's: mine ball0 active True, theirs ball1 active True
+[main] PASS both pages hold the same state digest after the reload (at the same version): 5197e427 / 5197e427 at 21:77515aaa
+[vp-mppm08e07853] PASS B's page, reloaded, holds the same state as A's (digest at the same version): 5197e427 / 5197e427 at 21:77515aaa
+```
+
+(the other run: f061e23e at 21:828b3b7b). `version()` is now 21 where it was 12 at the same point: since c971100,
+`digest()` and `version()` also cover per-player synced fields (`GolfPlayer`'s round, hole, the three stroke counts,
+finished, capturing, captures and shots), so the two pages are now shown to agree on each player's copy as well as on
+the table.
 
 ```
 [main] PASS JOIN (a UI collider, real mouse) seats A: slot 0, button LEAVE

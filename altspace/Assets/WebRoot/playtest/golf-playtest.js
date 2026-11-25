@@ -440,7 +440,15 @@
       theirsActive = await probe("active", otherBallPath);
       if (theirsActive !== "True") await sleep(250);
     }
-    check(theirsActive === "True" && (await probe("active", debug().pathOf("ball" + mySlot))) === "True", "each player has a ball, and sees the other's", `mine ball${mySlot}, theirs ball${theirSlot} active ${theirsActive}`);
+    // the own ball polled too: its `active` op lands a frame or more after the page placed it (README "Probes run
+    // ahead of the relay"); read once, it was still off in one run of two on 2026-11-25
+    const myBallPath = debug().pathOf("ball" + mySlot);
+    let mineActive = "";
+    for (let i = 0; i < 40 && mineActive !== "True"; i++) {
+      mineActive = await probe("active", myBallPath);
+      if (mineActive !== "True") await sleep(250);
+    }
+    check(theirsActive === "True" && mineActive === "True", "each player has a ball, and sees the other's", `mine ball${mySlot} active ${mineActive}, theirs ball${theirSlot} active ${theirsActive}`);
     const names = [];
     for (let i = 2; i < 4; i++) names.push(await probe("text", debug().pathOf("cardLine" + i)));
     check(names.filter((n) => n.trim().length > 0).length === 2, "the scorecard shows both players", names.join(" | "));
