@@ -22,6 +22,21 @@ portkit/tools/playtest.sh altspace altspace/playtest/tunnel.json mini-golf    th
 portkit/tools/playtest.sh altspace altspace/playtest/multi.json mini-golf     rung 4 (activates Player 2 itself)
 ```
 
+## Canvas colliders, 2026-11-25 evening (portkit 16be5ff: 476075d and 425bd55)
+
+In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit
+loaded: rect x scale, on the canvas's layer. rp-toolkit's head-label canvas then pushed its wearer about (measured in
+the hub's Play mode, portkit GAPS.md "Fourth pass"). Re-synced to portkit `16be5ff`. Its builder (`476075d`) gives every
+world-space canvas a trigger box of its own first, and whose `PortKit/Kit/Check` fails a canvas that would end up
+solid; `425bd55` also makes the page load kit items one at a time (overlapping loads lost relay graphs in the app). Rebuilt:
+
+- Build Prefabs: 6 trigger boxes added to world-space canvases, 2 canvas boxes made triggers.
+- rung 0/1: `npm test` **48 of 49** (1 failed: "two courses in one room stay separate". On 16be5ff the page-wide kit turn (`425bd55`) lets two pages start their second instance together, and both claim referee at term 1. That is an election bug in portkit, which is being fixed there; 49 of 49 on `476075d`). `npm run build`: 405922 bytes.
+- rung 2: Check all PASS (bindings `89c115ae`, the new "canvas colliders" line, both bundles). Android 1229 KiB, Windows 1327 KiB.
+- rung 3 (`playtest/single.json`, golf-single): **25 passed, 0 failed**, 0 console error lines (`playtest/evidence_single.txt`).
+- rung 4 (`playtest/multi.json`, golf-multi): **27 passed, 0 failed**, 1 console error lines (`playtest/evidence_multi.txt`).
+- `dist/` exported: 11 files (6 licence texts), footprint 4.11 x 2.45 x 5.1 m, bindings 89c115ae664cb468cacde5366397235cf84ea1fd.
+
 ## Rung 0: static
 
 `npm run typecheck` (tsc, strict) and `npm run lint` (only the platform adapters touch the page or the clock): clean.

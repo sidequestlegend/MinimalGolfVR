@@ -1,12 +1,7 @@
-play.1 already held by mini-golf
-local relay room cleared (1 saved rooms)
-Player 2: Launched (Clone)
-armed 'golf-multi': 3 elements, test server http://localhost:42700 (running), page port 42600
-2026-11-25T05:10:27.3475387+04:00 play -> entering play mode
 local: script and bundles from the test server http://localhost:42700
 [main] INFO main in Play, page port 42600
 [main] PASS the kit loads from a hand-written bs-snippet and the instance starts: hole 0
-[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_e3bd8614-6394-4069-8bca-d41aca1f3e88"},{"id":2,"name":"Player 2","sid":"rsess_96e58f46-2aa3-4ff0-ac26-e3b3476a5644"}]
+[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_6ac641c2-e2c9-4fb0-a694-16f0da5d51e7"},{"id":2,"name":"Player 2","sid":"rsess_60a60b1e-a1e6-4d4b-afda-bc15c98a94ff"}]
 [main] INFO this page is B
 [main] CMD g1 probe pk1:mini-golf:0 pos Board/VR_UI/Buttons/Join
 [main] REPLY g1 -1.509 1.610 3.266
@@ -36,7 +31,7 @@ local: script and bundles from the test server http://localhost:42700
 [main] CMD g11 probe pk1:mini-golf:0 pos Course/Balls/Ball%200
 [main] REPLY g11 0.000 0.713 0.348
 [main] CMD g12 probe pk1:mini-golf:0 pos Course/Balls/Ball%200
-[main] REPLY g12 0.000 0.713 0.357
+[main] REPLY g12 0.000 0.713 0.356
 [main] CMD g13 probe pk1:mini-golf:0 pos Course/Balls/Ball%200
 [main] REPLY g13 0.000 0.713 0.399
 [main] PASS B sees A's ball move: 0.051 m
@@ -59,15 +54,15 @@ local: script and bundles from the test server http://localhost:42700
 [main] PASS B sees the next hole load: hole 2
 [main] INFO B reloads its page
 [main] PASS the kit loads from a hand-written bs-snippet and the instance starts: hole 1
-[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_96e58f46-2aa3-4ff0-ac26-e3b3476a5644"},{"id":3,"name":"Main Editor","sid":"rsess_47cfd697-f547-46e4-a082-1cc7c8f1ccb9"}]
+[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_60a60b1e-a1e6-4d4b-afda-bc15c98a94ff"},{"id":3,"name":"Main Editor","sid":"rsess_969bfe40-1805-4584-8544-3f4920bd4c72"}]
 [main] PASS after reloading its page B is still seated on hole 2 (late join): seat 1, hole 1
-[main] PASS B's ball is back on the green under B's control after the reload: {"slot":1,"hole":1,"levelStrokes":0,"holeStrokes":0,"totalStrokes":2,"finished":0,"capturing":false,"ballLive":true,"canAct":true,"aiming":false,"shotPower":0,"shotNumber":0,"restShot":0,"atRest":true,"feedback":"","feedbackLeft":-3.362,"captures":23}
-[main] PASS both pages hold the same state digest after the reload (at the same version): 5197e427 / 5197e427 at 21:77515aaa
+[main] PASS B's ball is back on the green under B's control after the reload: {"slot":1,"hole":1,"levelStrokes":0,"holeStrokes":0,"totalStrokes":2,"finished":0,"capturing":false,"ballLive":true,"canAct":true,"aiming":false,"shotPower":0,"shotNumber":0,"restShot":0,"atRest":true,"feedback":"","feedbackLeft":-3.4300999999940394,"captures":25}
+[main] PASS both pages hold the same state digest after the reload (at the same version): 93784e88 / 93784e88 at 21:e5bb1390
 [main] INFO page result 5 passed, 0 failed
 [main] DONE
 [vp-mppm08e07853] INFO vp-mppm08e07853 in Play, page port 42600
 [vp-mppm08e07853] PASS the kit loads from a hand-written bs-snippet and the instance starts: hole 0
-[vp-mppm08e07853] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_e3bd8614-6394-4069-8bca-d41aca1f3e88"},{"id":2,"name":"Player 2","sid":"rsess_96e58f46-2aa3-4ff0-ac26-e3b3476a5644"}]
+[vp-mppm08e07853] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_6ac641c2-e2c9-4fb0-a694-16f0da5d51e7"},{"id":2,"name":"Player 2","sid":"rsess_60a60b1e-a1e6-4d4b-afda-bc15c98a94ff"}]
 [vp-mppm08e07853] INFO this page is A
 [vp-mppm08e07853] CMD g1 probe pk1:mini-golf:0 pos Board/VR_UI/Buttons/Join
 [vp-mppm08e07853] REPLY g1 -1.509 1.610 3.266
@@ -81,24 +76,24 @@ local: script and bundles from the test server http://localhost:42700
 [vp-mppm08e07853] PASS JOIN (a UI collider, real mouse) seats A: slot 0, button LEAVE
 [vp-mppm08e07853] PASS both players are seated: [{"uid":"0f2b21f87e29f9a5936877c44d19f63a","name":"Player 2","slot":0,"strokes":[null,null,null,null,null,null,null,null],"left":false},{"uid":"ea71beabbcdd9d67f76671884c9073a7","name":"Main Editor","slot":1,"strokes":[null,null,null,null,null,null,null,null],"left":false}]
 [vp-mppm08e07853] CMD g5 probe pk1:mini-golf:0 active Course/Balls/Ball%201
-[vp-mppm08e07853] REPLY g5 False
-[vp-mppm08e07853] CMD g6 probe pk1:mini-golf:0 active Course/Balls/Ball%201
+[vp-mppm08e07853] REPLY g5 True
+[vp-mppm08e07853] CMD g6 probe pk1:mini-golf:0 active Course/Balls/Ball%200
 [vp-mppm08e07853] REPLY g6 True
-[vp-mppm08e07853] CMD g7 probe pk1:mini-golf:0 active Course/Balls/Ball%200
-[vp-mppm08e07853] REPLY g7 True
 [vp-mppm08e07853] PASS each player has a ball, and sees the other's: mine ball0 active True, theirs ball1 active True
-[vp-mppm08e07853] CMD g8 probe pk1:mini-golf:0 text Board/VR_UI/Scorecard/Line2
-[vp-mppm08e07853] REPLY g8 Player 2       .                                0
-[vp-mppm08e07853] CMD g9 probe pk1:mini-golf:0 text Board/VR_UI/Scorecard/Line3
-[vp-mppm08e07853] REPLY g9 Main Editor    .                                0
+[vp-mppm08e07853] CMD g7 probe pk1:mini-golf:0 text Board/VR_UI/Scorecard/Line2
+[vp-mppm08e07853] REPLY g7 Player 2       .                                0
+[vp-mppm08e07853] CMD g8 probe pk1:mini-golf:0 text Board/VR_UI/Scorecard/Line3
+[vp-mppm08e07853] REPLY g8 Main Editor    .                                0
 [vp-mppm08e07853] PASS the scorecard shows both players: Player 2       .                                0 | Main Editor    .                                0
-[vp-mppm08e07853] CMD g10 look 0 0.713 0.3475
-[vp-mppm08e07853] REPLY g10 ok camera at 0.00,1.60,0.00
-[vp-mppm08e07853] CMD g11 click 0 0.7074999999999999 0.33699999999999997
-[vp-mppm08e07853] REPLY g11 ok screen 1280,343 of 2560x702
-[vp-mppm08e07853] CMD g12 key Space tap
-[vp-mppm08e07853] REPLY g12 ok
+[vp-mppm08e07853] CMD g9 look 0 0.713 0.3475
+[vp-mppm08e07853] REPLY g9 ok camera at 0.00,1.60,0.00
+[vp-mppm08e07853] CMD g10 click 0 0.7074999999999999 0.33699999999999997
+[vp-mppm08e07853] REPLY g10 ok screen 1280,343 of 2560x702
+[vp-mppm08e07853] CMD g11 key Space tap
+[vp-mppm08e07853] REPLY g11 ok
 [vp-mppm08e07853] INFO A's first putt (short): pull 0.011 m + 0 steps, power 0.066, strokes 0 -> 1
+[vp-mppm08e07853] CMD g12 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
+[vp-mppm08e07853] REPLY g12 0.000 0.713 0.348
 [vp-mppm08e07853] CMD g13 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
 [vp-mppm08e07853] REPLY g13 0.000 0.713 0.348
 [vp-mppm08e07853] CMD g14 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
@@ -112,22 +107,20 @@ local: script and bundles from the test server http://localhost:42700
 [vp-mppm08e07853] CMD g18 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
 [vp-mppm08e07853] REPLY g18 0.000 0.713 0.348
 [vp-mppm08e07853] CMD g19 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
-[vp-mppm08e07853] REPLY g19 0.000 0.713 0.349
-[vp-mppm08e07853] CMD g20 probe pk1:mini-golf:0 pos Course/Balls/Ball%201
-[vp-mppm08e07853] REPLY g20 0.000 0.713 0.390
-[vp-mppm08e07853] PASS A sees B's ball move: 0.042 m
-[vp-mppm08e07853] CMD g21 look 0 0.713 0.6112168
-[vp-mppm08e07853] REPLY g21 ok camera at 0.00,1.60,0.00
-[vp-mppm08e07853] CMD g22 click 0 0.7074999999999999 0.6007168
-[vp-mppm08e07853] REPLY g22 ok screen 1280,344 of 2560x702
-[vp-mppm08e07853] CMD g23 key Space tap
-[vp-mppm08e07853] REPLY g23 ok
-[vp-mppm08e07853] INFO putt 1 from 0.146 m: pull 0.011 m + 0 steps, power 0.081, strokes 1 -> 2
+[vp-mppm08e07853] REPLY g19 0.000 0.713 0.381
+[vp-mppm08e07853] PASS A sees B's ball move: 0.033 m
+[vp-mppm08e07853] CMD g20 look 0 0.713 0.6095096
+[vp-mppm08e07853] REPLY g20 ok camera at 0.00,1.60,0.00
+[vp-mppm08e07853] CMD g21 click 0 0.7074999999999999 0.5990096
+[vp-mppm08e07853] REPLY g21 ok screen 1280,344 of 2560x702
+[vp-mppm08e07853] CMD g22 key Space tap
+[vp-mppm08e07853] REPLY g22 ok
+[vp-mppm08e07853] INFO putt 1 from 0.148 m: pull 0.011 m + 0 steps, power 0.080, strokes 1 -> 2
 [vp-mppm08e07853] PASS A holes out: 2 strokes
 [vp-mppm08e07853] PASS the hole waits for B (A holed out, B still playing): hole 1
 [vp-mppm08e07853] PASS the hole advances once both have holed out: hole 2
 [vp-mppm08e07853] PASS the scorecard has both players' strokes for hole 1: [["Player 2",2],["Main Editor",2]]
-[vp-mppm08e07853] PASS B's page, reloaded, holds the same state as A's (digest at the same version): 5197e427 / 5197e427 at 21:77515aaa
+[vp-mppm08e07853] PASS B's page, reloaded, holds the same state as A's (digest at the same version): 93784e88 / 93784e88 at 21:e5bb1390
 [vp-mppm08e07853] INFO page result 12 passed, 0 failed
 [vp-mppm08e07853] DONE
 served: /web/pk-mini-golf.js x3, /web/playtest/golf-playtest.js x3, HEAD /kits/windows/mini-golf x3
@@ -135,4 +128,3 @@ console (main editor): 1 error lines
    [Error] Failed to load after 25 seconds: http://localhost:42600 (state SCENE_START): no component is still loading (1 registered).
 RESULT 27 passed, 0 failed
 DONE
-keeping the Play slot for mini-golf (--keep-play): release it with editor_slot.sh release mini-golf play
